@@ -1,0 +1,23 @@
+{
+  "name": "@yankeeinlondon/ask",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@inquirer/prompts": "^5.4.0",
+    "inferred-types": "^0.48.5",
+    "inquirer": "^10.2.0"
+  },
+  "devDependencies": {
+    "@inquirer/type": "^1.5.3",
+    "@type-challenges/utils": "^0.1.1",
+    "typed-tester": "^0.6.2",
+    "vitest": "^2.0.5"
+  }
+}
