@@ -25,31 +25,38 @@ describe("ToChoices<T>", () => {
   });
 
   it("mixed array of scalars and choices", () => {
-    type FooBar = ToChoices<["foo", { type: "choice"; name: "Bar"; value: "bar"}]>;
+    type FooBar = ToChoices<[
+      "foo", 
+      { type: "choice"; name: "Bar"; value: "bar"}, // actual Choice
+    ]>;
     
     // @ts-ignore
     type cases = [
       Expect<
-        HasSameValues<FooBar, [
-          {type: "choice", name: "foo", value: "foo"},
-          {type: "choice", name: "Bar", value: "bar"},
-        ]>
-      >
+        HasSameValues<
+          FooBar, 
+          [
+            {type: "choice", name: "foo", value: "foo"},
+            {type: "choice", name: "Bar", value: "bar"},
+          ]
+      >>
     ];
   });
 
   it("choices from a ChoiceDict", () => {
-    type FooBar = ToChoices<{
+    type FooBarBaz = ToChoices<{
       Foo: "foo";
       Bar: "bar";
+      Baz: { value: "baz"; undefined: "never mind" }
     }>;
     
     // @ts-ignore
     type cases = [
       Expect<
-        HasSameValues<FooBar, [
+        HasSameValues<FooBarBaz, [
           {type: "choice", name: "Foo", value: "foo"},
           {type: "choice", name: "Bar", value: "bar"},
+          {type: "choice", name: "Baz", value: "baz", disabled: "never mind"},
         ]>
       >
     ];

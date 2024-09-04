@@ -17,8 +17,8 @@ describe("QuestionReturns<Name,Type,Require,[Choices]>", () => {
     }>;
     
     type cases = [
-      Expect<Equal<Name, { name: string; [key: string | symbol]: unknown }>>,
-      Expect<Equal<NameWithTitle, { name: string; title: "Mr" | "Mrs" | "Ms"; [key: string | symbol]: unknown }>>,
+      Expect<Equal<Name, { name: string; [key: string ]: unknown }>>,
+      Expect<Equal<NameWithTitle, { name: string; title: "Mr" | "Mrs" | "Ms"; [key: string ]: unknown }>>,
     ];
     const cases: cases = [
       true, true

@@ -1,4 +1,5 @@
 import { isArray, isNumber, isObject, isString, Never } from "inferred-types";
+import { isChoiceDictProxy } from "src/type-guards/isChoiceDIctProxy";
 import { Choice, ChoiceDict, Choices, ToChoices } from "src/types";
 
 const isChoice = (val: unknown): val is Choice => {
@@ -10,11 +11,19 @@ const isChoiceDict = (val: unknown): val is ChoiceDict => {
 }
 
 const fromChoiceDict = (v: ChoiceDict) => {
-  return Object.keys(v).map(key => ({
-    type: "choice",
-    name: String(key),
-    value: v[key]
-  })) as Choice[]
+  return Object.keys(v).map(key => (
+    isChoiceDictProxy(v[key]) 
+    ? {
+      type: "choice",
+      name: String(key),
+      ...v[key]
+    }
+    : {
+      type: "choice",
+      name: String(key),
+      value: v[key]
+    }
+  )) as Choice[]
 }
 
 /**

@@ -1,7 +1,5 @@
 import { 
-  Dictionary,
   EmptyObject, 
-  Scalar, 
   SimpleToken,
 } from "inferred-types";
 import { 
@@ -10,7 +8,6 @@ import {
   FromRequirements, 
 } from "./utility";
 import { Question } from "./Question";
-
 
 /**
  * a union of acceptable values for the `type` of a Question
@@ -27,35 +24,9 @@ export type QuestionType =
 | "editor";
 
 
-/**
- * An array of Choices represented in either it's full `Choice` form
- * or just the _value_ we want to represent. This type of array can be
- * converted into an array of `Choice` types by using the 
- * `ToChoices` type util.
- */
-export type ChoiceArr = readonly (string | number | boolean | null | undefined | Choice<unknown>)[];
-
-/**
- * when using the `ChoiceDict` structure of defining choices, the typical approach is
- * to have the "key" be the `name` and the "value" be the `value` property 
- */
-export type ChoiceDictTuple = [value: unknown, desc: string];
-
-export type IsChoiceDictTuple<T> = T extends [unknown, string]
-  ? true
-  : false;
-
-/**
- * A `ChoiceDict` represents a set of `Choices` as a dictionary where
- * the keys are the "names" and the values are the actual values of the
- * the individual choices.
- */
-export type ChoiceDict = Record<string, Scalar | Dictionary | ChoiceDictTuple>;
-
-export type Choices = 
-| ChoiceArr
-| ChoiceDict;
-
+export type Separator = {
+  type: "separator";
+}
 
 /**
  * A fully qualified definition of a choice
@@ -80,7 +51,13 @@ export type Choice<T = unknown> = {
    * Disallow the option from being selected. If disabled is a string, it'll 
    * be used as a help tip explaining why the choice isn't available.
    */
-  disabled?: boolean | "true" | "false";
+  disabled?: boolean | string;
+
+  /**
+   * used in the `expand` command to map a key value which maps to a given
+   * choice / action.
+   */
+  key?: string;
 }
 
 type BaseQuestionOptions<
@@ -130,29 +107,6 @@ type BaseQuestionOptions<
      */
     helpMode: 'always' | 'never' | 'auto';
   };
-
-  /**
-   * **requirements**
-   * 
-   * Allows for a question to express which properties in 
-   * `Answers` it _requires_ to complete it's task.
-   * 
-   * For example:
-   * ```ts
-   * {
-   *    requirements: {
-   *      foo: "number",
-   *      bar: "string",
-   *      baz: "Opt<number(42,99,0)>"
-   *    }
-   * }
-   * ```
-   * 
-   * - this means that `foo` and `bar` MUST be defined prior to asking this question
-   * - the property `baz` is _optional_ so it's not a requirement but all three 
-   * properties will be typed for all appropriate callbacks defined on this question
-   */
-  requirements?: TRequire;
 
   /**
    * Force to prompt the question if the answer already exists.
@@ -214,6 +168,19 @@ export type NumberQuestionOptions<
   min?: number;
   max?: number;
   step?: number | 'any';
+  theme?: {
+    prefix: string;
+    spinner: {
+      interval: number;
+      frames: string[];
+    };
+    style: {
+      answer: (text: string) => string;
+      message: (text: string) => string;
+      error: (text: string) => string;
+      defaultAnswer: (text: string) => string;
+    };
+  };
 }
 
 export type ConfirmQuestionOptions<
@@ -222,7 +189,48 @@ export type ConfirmQuestionOptions<
 
 export type ListQuestionOptions<
   TRequire extends Requirements
-> = BaseQuestionOptions<string, TRequire>;
+> = BaseQuestionOptions<string, TRequire> & {
+  /**
+   * By default, lists of choice longer than 7 will be paginated. 
+   * Use this option to control how many choices will appear on the 
+   * screen at once.
+   */
+  pageSize?: number,
+  /**
+   * Defaults to true. When set to false, the cursor will be constrained 
+   * to the top and bottom of the choice list without looping.
+   */
+  loop?: boolean,
+  theme?: {
+    prefix: string;
+    spinner: {
+      interval: number;
+      frames: string[];
+    };
+    style: {
+      answer: (text: string) => string;
+      message: (text: string) => string;
+      error: (text: string) => string;
+      help: (text: string) => string;
+      highlight: (text: string) => string;
+      description: (text: string) => string;
+      disabled: (text: string) => string;
+    };
+    icon: {
+      cursor: string;
+    };
+    /** 
+     * Modes:
+     * 
+     * - `auto` (default): Hide the help tips after an interaction occurs. The 
+     * scroll tip will hide after any interactions, the selection tip will hide 
+     * as soon as a first selection is done.
+     * - `always`: The help tips will always show and never hide.
+     * - `never`: The help tips will never show.
+     */
+    helpMode: 'always' | 'never' | 'auto';
+  }
+};
 
 
 export type PasswordQuestionOptions<
@@ -241,7 +249,25 @@ export type RawlistQuestionOptions<
 
 export type EditorQuestionOptions<T extends Requirements> = BaseQuestionOptions<string, T> & {}
 
-export type  ExpandQuestionOptions<T extends Requirements> = BaseQuestionOptions<string, T>;
+export type  ExpandQuestionOptions<T extends Requirements> = BaseQuestionOptions<string, T> & {
+  /** Expand the choices by default */
+  expanded?: boolean;
+
+  theme?: {
+    prefix: string;
+    spinner: {
+      interval: number;
+      frames: string[];
+    };
+    style: {
+      answer: (text: string) => string;
+      message: (text: string) => string;
+      error: (text: string) => string;
+      defaultAnswer: (text: string) => string;
+      highlight: (text: string) => string;
+    };
+  }
+};
 
 export type  CheckboxQuestionOptions<T extends Requirements> = BaseQuestionOptions<unknown[], T> & {
   /** 
@@ -254,12 +280,65 @@ export type  CheckboxQuestionOptions<T extends Requirements> = BaseQuestionOptio
    * option to control how many choices will appear on the screen at once.
    */
   pageSize?: number;
+
+  /**
+   * When set to true, ensures at least one choice must be selected.
+   */
+  required?: boolean;
+
+  /**
+   * On submit, validate the choices. When returning a string, it'll be 
+   * used as the error message displayed to the user. Note: returning a 
+   * rejected promise, we'll assume a code error happened and crash.
+   */
+  validate?: (choices: Choice[]) =>  Promise<boolean | string>;
+
+  theme?: {
+    prefix: string;
+    spinner: {
+      interval: number;
+      frames: string[];
+    };
+    style: {
+      answer: (text: string) => string;
+      message: (text: string) => string;
+      error: (text: string) => string;
+      defaultAnswer: (text: string) => string;
+      help: (text: string) => string;
+      highlight: (text: string) => string;
+      key: (text: string) => string;
+      disabledChoice: (text: string) => string;
+      description: (text: string) => string;
+      renderSelectedChoices: <T>(
+        selectedChoices: ReadonlyArray<Choice<T>>,
+        allChoices: ReadonlyArray<Choice<T> | Separator>,
+      ) => string;
+    };
+    icon: {
+      checked: string;
+      unchecked: string;
+      cursor: string;
+    };
+    /** 
+     * Modes:
+     * 
+     * - `auto` (default): Hide the help tips after an interaction occurs. The 
+     * scroll tip will hide after any interactions, the selection tip will hide 
+     * as soon as a first selection is done.
+     * - `always`: The help tips will always show and never hide.
+     * - `never`: The help tips will never show.
+     */
+    helpMode: 'always' | 'never' | 'auto';
+  }
 };
 
 
 export type ListChoiceOptions = {
   /**
-   * A value indicating whether the choice is disabled.
+   * A flag indicating whether the choice is disabled.
+   * 
+   * If disabled is a string, it'll be used as a help tip explaining why 
+   * the choice isn't available.
    */
   disabled?: DynamicQuestionProp<boolean | string, Answers> | undefined;
 }

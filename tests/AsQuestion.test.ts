@@ -1,5 +1,5 @@
 import { Equal, Expect } from "@type-challenges/utils";
-import { Keys } from "inferred-types";
+import { HasSameValues, Keys } from "inferred-types";
 import { AsQuestion } from "src/types";
 import { describe, it } from "vitest";
 
@@ -41,7 +41,10 @@ describe("AsQuestion<TName,TType,TRequire,TPrompt,[TChoices]>", () => {
       Expect<Equal<NameWithTitle["prompt"], "What's your name?">>,
 
       Expect<Equal<Keys<Awaited<ReturnType<Name>>>, ["name"]>>,
-      Expect<Equal<Keys<Awaited<ReturnType<NameWithTitle>>>, ["title", "name"]>>,
+      Expect<HasSameValues<
+        Keys<Awaited<ReturnType<NameWithTitle>>>, 
+        ["title", "name"]
+      >>,
 
       Expect<Equal<Awaited<ReturnType<Name>>["name"], string>>,
       Expect<Equal<Awaited<ReturnType<NameWithTitle>>["name"], string>>,

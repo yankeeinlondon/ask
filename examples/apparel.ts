@@ -5,10 +5,11 @@ const question = ask.checkbox(
   "apparel", 
   "What type of clothes are you interested in?", 
   {
+    Hats: "hats",
     Shoes: "shoes",
+    Slinkeys: { value: "slinkeys", disabled: "none in stock" },
     Shirts: "shirts",
     Sweaters: "sweaters",
-    Hats: "hats"
   },
   {default: ["shoes","hats"]}
 );
