@@ -2,20 +2,16 @@ import {
   AfterFirst,  
   As, 
   AsString,  
-  Dictionary,  
-  DoesExtend, 
   EmptyObject, 
   ExpandDictionary, 
   First, 
   GetEach, 
-  If, 
   IsEqual, 
   IsScalar, 
   Keys, 
-  Or, 
-  RequiredProps, 
+  RequiredProps,  
   SimpleType, 
-  TypedFunction 
+  TypedFunction, 
 } from "inferred-types";
 import {  
   Choice, 
@@ -43,6 +39,8 @@ export type FromRequirements<T extends Requirements> = T extends "no-requirement
 export type HasRequiredProps<T extends Requirements>  = T extends RequirementDescriptor
 ? Keys<RequiredProps<FromRequirements<T>>>["length"] extends 0
   ? false
+  : IsEqual<Keys<RequiredProps<FromRequirements<T>>>["length"], number> extends true
+  ? false
   : true
 : false;
 
@@ -59,7 +57,14 @@ type _ObjToChoice<
     [
       ...TChoices,
       First<TKeys> extends keyof TObj
-        ? { type: "choice"; name: First<TKeys>; value: TObj[First<TKeys>] } extends Choice<unknown>
+        ? TObj[First<TKeys>] extends [unknown, string]
+          ? { 
+            type: "choice"; 
+            name: First<TKeys>; 
+            value: TObj[First<TKeys>][0]; 
+            description: TObj[First<TKeys>][1] 
+          } 
+          : { type: "choice"; name: First<TKeys>; value: TObj[First<TKeys>] } extends Choice<unknown>
           ? { type: "choice"; name: First<TKeys>; value: TObj[First<TKeys>] }
           : never
         : never
@@ -82,17 +87,19 @@ type _ToChoicesArr<T extends Choices> = {
  */
 export type ToChoices<T extends Choices> = T extends ChoiceArr
 ? _ToChoicesArr<T>
-: T extends Record<string, unknown>
-  ? _ObjToChoice<T, As<Keys<T>, readonly string[]>>
+: T extends ChoiceDict
+  ? Keys<T> extends readonly string[]
+    ? _ObjToChoice<T, Keys<T>>
+    : never
   : never;
 
 /**
  * Reduces a tuple of `Choice` objects to a union type of possible types 
  * that could result from a given question.
  */
-export type ChoicesOutput<T extends readonly Choice[]> = GetEach<T,"value"> extends readonly unknown[]
-  ? GetEach<T, "value">[number]
-  : never;
+export type ChoicesOutput<T extends readonly Choice[]> = {
+  [K in keyof T]: T[K]["value"]
+}[number]
 
 export type Callback<
   TParams extends readonly unknown[],
@@ -111,6 +118,21 @@ TReq extends Requirements
 ? `(answers?: Answers) => Answers `
 : `(answers: Answers) => Answers`;
 
+/**
+ * returns the _type_ (typically a union type) of a set of choices
+ * in a question.
+ */
+type ChoiceRecord<
+  TName extends string, 
+  TChoices extends Choices
+> = Record<
+  TName,
+  ToChoices<TChoices> extends readonly Choice[]
+    ? GetEach<ToChoices<TChoices>, "value"> extends readonly unknown[]
+      ? GetEach<ToChoices<TChoices>, "value">[number]
+      : never
+    : never
+>;
 
 /**
  * Takes the existing answers hash and combines with a question's
@@ -126,41 +148,58 @@ export type QuestionReturns<
   TType extends QuestionType,
   TRequire extends Requirements,
   TChoices extends Choices = []
-> = If<
-  Or<[
-    DoesExtend<"input", TType>,
-    DoesExtend<"editor", TType>,
-    DoesExtend<"password", TType>,
-  ]>,
-  ExpandDictionary< 
-    Dictionary & FromRequirements<TRequire> & Record<TName,string> 
-  >,
-  TType extends "number"
-    ? ExpandDictionary< 
-        Dictionary & FromRequirements<TRequire> & Record<TName,number> 
-      >
-  : If<
-      Or<[ 
-        DoesExtend<"list", TType>, 
-        DoesExtend<"rawlist", TType>,
-        DoesExtend<"checkbox", TType>,
-      ]>,
-      ExpandDictionary< 
-        Dictionary &
-        FromRequirements<TRequire> & 
-        Record<
-          TName,
-          ChoicesOutput<ToChoices<TChoices>>
-        > 
-      >,
-      TType extends "confirm"
-        ? ExpandDictionary<
-            Dictionary & FromRequirements<TRequire> & Record<TName,boolean>
-          >
-        : never
+> = TType extends "input"
+? ExpandDictionary< 
+    Record<string, unknown> & FromRequirements<TRequire> & Record<TName,string> 
+  >
+: TType extends "editor"
+? ExpandDictionary< 
+    Record<string, unknown> & FromRequirements<TRequire> & Record<TName,string> 
+  >
+: TType extends "password"
+  ? ExpandDictionary< 
+      Record<string, unknown> & FromRequirements<TRequire> & Record<TName,string> 
     >
->;
+: TType extends "number"
+  ? ExpandDictionary< 
+      Record<string, unknown> & FromRequirements<TRequire> & Record<TName,number> 
+    >
+: TType extends "confirm"
+  ? ExpandDictionary< 
+      Record<string, unknown> & FromRequirements<TRequire> & Record<TName,boolean> 
+    >
+: TType extends "list"
+  ? ExpandDictionary< 
+      Record<string, unknown> & FromRequirements<TRequire> & ChoiceRecord<TName,TChoices> 
+    >
+: TType extends "rawlist"
+  ? ExpandDictionary< 
+      Record<string, unknown> & FromRequirements<TRequire> & ChoiceRecord<TName,TChoices> 
+    >
+: TType extends "checkbox"
+  ? ExpandDictionary< 
+      Record<string, unknown> & FromRequirements<TRequire> & ChoiceRecord<TName,TChoices>[]
+    >
+: never;
 
+
+/**
+ * type utility which determines what a Question's parameters 
+ * should be.
+ */
+export type QuestionParams<
+  TReq extends Requirements,
+> = TReq extends RequirementDescriptor
+? HasRequiredProps<TReq> extends true
+  ? [answers: ExpandDictionary<
+      FromRequirements<TReq> & 
+      Record<string,  unknown>
+    >]
+  : [answers?: ExpandDictionary< 
+      FromRequirements<TReq> &
+      Record<string,  unknown>
+    >]
+: [ answers?: Record<string,  unknown> ] | [];
 
 
 export type AsPrompt<
@@ -184,5 +223,8 @@ export type AsQuestion<
   TName,
   TType,
   AsPrompt<TRequire, TPrompt>,
-  QuestionFn<TRequire, TPrompt, QuestionReturns<TName, TType, TRequire,TChoices>>
+  QuestionFn<
+    TRequire, 
+    QuestionReturns<TName, TType, TRequire, TChoices>
+  >
 >;

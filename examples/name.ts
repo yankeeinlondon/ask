@@ -1,9 +1,12 @@
 import { ask } from "src/index";
 
 
-const question = ask.input("name", "What is your name?");
+const question = ask.input("name", "What is your name?", {default: "Bob"});
 
-console.log(question)
+console.log(question.prompt)
 
-// await question({});
+const answer = await question();
+
+console.log(answer);
+
 

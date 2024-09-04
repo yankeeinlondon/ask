@@ -30,7 +30,7 @@ describe("ask API", () => {
       Expect<Equal<typeof name["type"], "input">>,
       Expect<Equal<typeof name["prompt"], "What is your name?">>,
 
-      Expect<Equal<Param, { [key: string|symbol]: unknown } | undefined>>,
+      Expect<Equal<Param, [] | [answers?: Record<string, unknown> | undefined]>>,
       Expect<Equal<Return, { name: string; [key: string|symbol]: unknown }>>,
     ];
   });

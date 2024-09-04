@@ -9,7 +9,9 @@ import { describe, it } from "vitest";
 describe("QuestionReturns<Name,Type,Require,[Choices]>", () => {
 
   it("first test", () => {
-    type Name = QuestionReturns<"name", "input", "no-requirements">;
+    type Name = QuestionReturns<
+      "name", "input", "no-requirements"
+    >;
     type NameWithTitle = QuestionReturns<"name", "input", {
       title: "string(Mr,Mrs,Ms)"
     }>;

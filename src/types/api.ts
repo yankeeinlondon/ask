@@ -1,5 +1,7 @@
+import { TypedFunction } from "inferred-types";
 import {  Choices, Prompt, QuestionOption,  RequirementDescriptor, Requirements } from "./inquirer";
-import { AsQuestion, FromRequirements } from "./utility";
+import { Question, QuestionFn } from "./Question";
+import { AsQuestion, FromRequirements, QuestionReturns } from "./utility";
 
 
 /**
@@ -53,7 +55,16 @@ export type AskApi<
     name: TName,
     prompt: TPrompt, 
     opt?: TOpt
-  ): AsQuestion<TName,"input",TReq, TPrompt>;
+  ): Question<
+    TName,
+    "input",
+    TPrompt extends TypedFunction
+      ? ReturnType<TPrompt>
+      : TPrompt,
+    QuestionFn<TReq,QuestionReturns<TName, "input", TReq>>
+  >;
+
+  
   number<
     TName extends string, 
     TPrompt extends string,

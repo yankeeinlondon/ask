@@ -55,6 +55,4 @@ describe("ToChoices<T>", () => {
     ];
     
   });
-  
-
 });

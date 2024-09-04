@@ -16,6 +16,8 @@ describe("AsQuestion<TName,TType,TRequire,TPrompt,[TChoices]>", () => {
       "no-requirements",
       "What's your name?"
     >;
+    type NoParam = Parameters<Name>;
+    
 
     type NameWithTitle = AsQuestion<
       "name",
@@ -23,6 +25,15 @@ describe("AsQuestion<TName,TType,TRequire,TPrompt,[TChoices]>", () => {
       { title: "string(Mr,Mrs,Ms)" },
       "What's your name?"
     >;
+    type ReqParam = Parameters<NameWithTitle>;
+
+    type NameWithOptTitle = AsQuestion<
+      "name",
+      "input",
+      { title?: "string(Mr,Mrs,Ms)" },
+      "What's your name?"
+    >;
+    type OptParam = Parameters<NameWithOptTitle>;
     
     // @ts-ignore
     type cases = [
@@ -35,6 +46,17 @@ describe("AsQuestion<TName,TType,TRequire,TPrompt,[TChoices]>", () => {
       Expect<Equal<Awaited<ReturnType<Name>>["name"], string>>,
       Expect<Equal<Awaited<ReturnType<NameWithTitle>>["name"], string>>,
       Expect<Equal<Awaited<ReturnType<NameWithTitle>>["title"], "Mr" | "Mrs" | "Ms">>,
+
+      Expect<Equal<NoParam, [] | [answers?: Record<string, unknown> | undefined]>>,
+      Expect<Equal<ReqParam, [ answers: {
+        [key: string]: unknown;
+        title: "Mr" | "Mrs" | "Ms"
+      } ]>>,
+      Expect<Equal<OptParam, [ 
+        answers?: {
+          title?: "Mr" | "Mrs" | "Ms"  | undefined,
+          [key: string]: unknown
+        } | undefined ]>>,
     ];
   });
 
@@ -91,9 +113,7 @@ describe("AsQuestion<TName,TType,TRequire,TPrompt,[TChoices]>", () => {
     type cases = [
       Expect<Equal<Awaited<ReturnType<Color>>["color"], "red" | "blue" | "green">>,
     ];
-    // const cases: cases = [
-    //   true
-    // ];
+
     
   });
   

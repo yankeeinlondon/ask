@@ -1,17 +1,21 @@
-import { AnyFunction, HasRequiredProps, Or } from "inferred-types";
-import { Answers, Prompt, QuestionType, RequirementDescriptor, Requirements } from "./inquirer";
-import { FromRequirements } from "./utility";
+import { Answers,  QuestionType,  Requirements } from "./inquirer";
+import {  QuestionParams } from "./utility";
 
 
 export type QuestionFn<
   TReq extends Requirements,
-  TPrompt extends Prompt<TReq>,
   TRtn extends Answers
-> = TReq extends RequirementDescriptor
-? Or<[HasRequiredProps<TReq>, TPrompt extends AnyFunction? true : false]> extends true
-  ? <T extends FromRequirements<TReq>>(answers: T) => Promise<TRtn>
-  : <T extends FromRequirements<TReq>>(answers?: T) => Promise<TRtn>
-: <T extends Answers>(answers?: T) => Promise<TRtn>;
+> = (<T extends QuestionParams<TReq>>(...args: T) => Promise<TRtn>) & {
+  [key: string]: unknown
+};
+
+
+
+// TReq extends RequirementDescriptor
+// ? Or<[HasRequiredProps<TReq>, TPrompt extends AnyFunction? true : false]> extends true
+//   ? <T extends FromRequirements<TReq>>(answers: T) => Promise<TRtn>
+//   : <T extends FromRequirements<TReq>>(answers?: T) => Promise<TRtn>
+// : <T extends Answers>(answers?: T) => Promise<TRtn>;
 
 
 export type QuestionProps<
@@ -45,7 +49,7 @@ export type Question<
   TName extends string = string,
   TType extends QuestionType = QuestionType,
   TPrompt extends string = string,
-  TFn extends QuestionFn<Requirements,Prompt, Answers> = QuestionFn<Requirements, Prompt, Answers>
+  TFn extends QuestionFn<Requirements, Answers> = QuestionFn<Requirements, Answers>
 > = {
   kind: "question";
   name: TName;

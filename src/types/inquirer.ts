@@ -1,5 +1,7 @@
 import { 
+  Dictionary,
   EmptyObject, 
+  Scalar, 
   SimpleToken,
 } from "inferred-types";
 import { 
@@ -34,11 +36,21 @@ export type QuestionType =
 export type ChoiceArr = readonly (string | number | boolean | null | undefined | Choice<unknown>)[];
 
 /**
+ * when using the `ChoiceDict` structure of defining choices, the typical approach is
+ * to have the "key" be the `name` and the "value" be the `value` property 
+ */
+export type ChoiceDictTuple = [value: unknown, desc: string];
+
+export type IsChoiceDictTuple<T> = T extends [unknown, string]
+  ? true
+  : false;
+
+/**
  * A `ChoiceDict` represents a set of `Choices` as a dictionary where
  * the keys are the "names" and the values are the actual values of the
  * the individual choices.
  */
-export type ChoiceDict = Record<string, unknown>;
+export type ChoiceDict = Record<string, Scalar | Dictionary | ChoiceDictTuple>;
 
 export type Choices = 
 | ChoiceArr
@@ -53,9 +65,21 @@ export type Choice<T = unknown> = {
   /** 
    * the actual _value_ which the question will be set to if this choice is selected */
   value: T;
-  name?: string;
+  name: string;
   description?: string;
+  /**
+   * Used in the `checkbox` type to indicate the initial state
+   */
+  checked?: boolean;
+  /**
+   * Once the prompt is done (press enter), we'll use `short` if defined to 
+   * render next to the question. By default we'll use `name`.
+   */
   short?: string;
+  /**
+   * Disallow the option from being selected. If disabled is a string, it'll 
+   * be used as a help tip explaining why the choice isn't available.
+   */
   disabled?: boolean | "true" | "false";
 }
 
@@ -69,7 +93,43 @@ type BaseQuestionOptions<
   /** boolean flag indicating if a value is _required_ from this question */
   required?: boolean;
   /** no idea */
-  theme?: unknown;
+  theme?: {
+    prefix: string;
+    spinner: {
+      interval: number;
+      frames: string[];
+    };
+    style: {
+      answer: (text: string) => string;
+      message: (text: string) => string;
+      error: (text: string) => string;
+      defaultAnswer: (text: string) => string;
+      help: (text: string) => string;
+      highlight: (text: string) => string;
+      key: (text: string) => string;
+      disabledChoice: (text: string) => string;
+      description: (text: string) => string;
+      renderSelectedChoices: <T>(
+        selectedChoices: ReadonlyArray<Choice<T>>,
+        allChoices: ReadonlyArray<Choice<T> | Separator>,
+      ) => string;
+    };
+    icon: {
+      checked: string;
+      unchecked: string;
+      cursor: string;
+    };
+    /** 
+     * Modes:
+     * 
+     * - `auto` (default): Hide the help tips after an interaction occurs. The 
+     * scroll tip will hide after any interactions, the selection tip will hide 
+     * as soon as a first selection is done.
+     * - `always`: The help tips will always show and never hide.
+     * - `never`: The help tips will never show.
+     */
+    helpMode: 'always' | 'never' | 'auto';
+  };
 
   /**
    * **requirements**
@@ -137,7 +197,8 @@ type BaseQuestionOptions<
     answers: Answers<TRequire>, 
     flags: { 
       isFinal?: boolean | undefined 
-  }): string | Promise<TBaseType>;
+    }
+  ): string | Promise<TBaseType>;
 }
 
 type InputQuestionOptions<
@@ -182,7 +243,18 @@ export type EditorQuestionOptions<T extends Requirements> = BaseQuestionOptions<
 
 export type  ExpandQuestionOptions<T extends Requirements> = BaseQuestionOptions<string, T>;
 
-export type  CheckboxQuestionOptions<T extends Requirements> = BaseQuestionOptions<string, T>;
+export type  CheckboxQuestionOptions<T extends Requirements> = BaseQuestionOptions<unknown[], T> & {
+  /** 
+   * Defaults to `true`. When set to `false`, the cursor will be constrained 
+   * to the top and bottom of the choice list without looping.
+   */
+  loop?: boolean;
+  /**
+   * By default, lists of choice longer than 7 will be paginated. Use this 
+   * option to control how many choices will appear on the screen at once.
+   */
+  pageSize?: number;
+};
 
 
 export type ListChoiceOptions = {

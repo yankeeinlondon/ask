@@ -12,8 +12,8 @@ importers:
         specifier: ^5.4.0
         version: 5.4.0
       inferred-types:
-        specifier: ^0.48.5
-        version: 0.48.5
+        specifier: ^0.48.9
+        version: 0.48.9
       inquirer:
         specifier: ^10.2.0
         version: 10.2.0
@@ -29,7 +29,7 @@ importers:
         version: 0.6.2(typescript@5.5.4)
       vitest:
         specifier: ^2.0.5
-        version: 2.0.5(@types/node@22.5.2)
+        version: 2.0.5(@types/node@22.5.3)
 
 packages:
 
@@ -353,8 +353,8 @@ packages:
   '@types/mute-stream@0.0.4':
     resolution: {integrity: sha512-CPM9nzrCPPJHQNA9keH9CVkVI+WR5kMa+7XEs5jcGQ0VoAGnLv242w8lIVgwAEfmE4oufJRaTc9PNLQl0ioAow==}
 
-  '@types/node@22.5.2':
-    resolution: {integrity: sha512-acJsPTEqYqulZS/Yp/S3GgeE6GZ0qYODUR8aVr/DkhHQ8l9nd4j5x1/ZJy9/gHrRlFMqkO6i0I3E27Alu4jjPg==}
+  '@types/node@22.5.3':
+    resolution: {integrity: sha512-njripolh85IA9SQGTAqbmnNZTdxv7X/4OYGPz8tgy5JDr8MP+uDBa921GpYEoDDnwm0Hmn5ZPeJgiiSTPoOzkQ==}
 
   '@types/stack-trace@0.0.33':
     resolution: {integrity: sha512-O7in6531Bbvlb2KEsJ0dq0CHZvc3iWSR5ZYMtvGgnHA56VgriAN/AU2LorfmcvAl2xc9N5fbCTRyMRRl8nd74g==}
@@ -724,8 +724,8 @@ packages:
   inferred-types@0.46.1:
     resolution: {integrity: sha512-1VQVm6J7e1G6rXCaIIJoxIGiE80pR+GfhbK6QSPT04MOzHmIddm8I6TrWlA+GqkPaKo/CvkI/z/CYLVkJ3+BAA==}
 
-  inferred-types@0.48.5:
-    resolution: {integrity: sha512-reFQeetGqEU9nDkS8Vp0MziOrNm3Xy1LfEv8r/sNz+Pquz3t8HK/ei1qSpr485G4nSvjjoiX2vzeSd2jo5K2TA==}
+  inferred-types@0.48.9:
+    resolution: {integrity: sha512-NdKnDjObMIRovgyHr5IY1w/leieCbnXDDYM/4B6WLgcSl7Zw4ac4f/TJ0Qdhfqi2m0ALdtpN9GM5KW7A+KXAKg==}
 
   inquirer@10.2.0:
     resolution: {integrity: sha512-OE/HDYrQAgeUPs3mKetfarr/EFiotdULUc7R2XvwqPHMEjFtCqNsfYDfCZ5baAKKtb9kCaKclNTTE9hSi7JFjg==}
@@ -1170,8 +1170,8 @@ packages:
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
 
-  vite@5.4.2:
-    resolution: {integrity: sha512-dDrQTRHp5C1fTFzcSaMxjk6vdpKvT+2/mIdE07Gw2ykehT49O0z/VHS3zZ8iV/Gh8BJJKHWOe5RjaNrW5xf/GA==}
+  vite@5.4.3:
+    resolution: {integrity: sha512-IH+nl64eq9lJjFqU+/yrRnrHPVTlgy42/+IzbOdaFDVlyLgI/wDlf+FCobXLX1cT0X5+7LMyH1mIy2xJdLfo8Q==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:
@@ -1388,7 +1388,7 @@ snapshots:
       '@inquirer/figures': 1.0.5
       '@inquirer/type': 1.5.3
       '@types/mute-stream': 0.0.4
-      '@types/node': 22.5.2
+      '@types/node': 22.5.3
       '@types/wrap-ansi': 3.0.0
       ansi-escapes: 4.3.2
       cli-spinners: 2.9.2
@@ -1557,9 +1557,9 @@ snapshots:
 
   '@types/mute-stream@0.0.4':
     dependencies:
-      '@types/node': 22.5.2
+      '@types/node': 22.5.3
 
-  '@types/node@22.5.2':
+  '@types/node@22.5.3':
     dependencies:
       undici-types: 6.19.8
 
@@ -2032,7 +2032,7 @@ snapshots:
 
   inferred-types@0.46.1: {}
 
-  inferred-types@0.48.5: {}
+  inferred-types@0.48.9: {}
 
   inquirer@10.2.0:
     dependencies:
@@ -2491,13 +2491,13 @@ snapshots:
 
   undici-types@6.19.8: {}
 
-  vite-node@2.0.5(@types/node@22.5.2):
+  vite-node@2.0.5(@types/node@22.5.3):
     dependencies:
       cac: 6.7.14
       debug: 4.3.6
       pathe: 1.1.2
       tinyrainbow: 1.2.0
-      vite: 5.4.2(@types/node@22.5.2)
+      vite: 5.4.3(@types/node@22.5.3)
     transitivePeerDependencies:
       - '@types/node'
       - less
@@ -2509,16 +2509,16 @@ snapshots:
       - supports-color
       - terser
 
-  vite@5.4.2(@types/node@22.5.2):
+  vite@5.4.3(@types/node@22.5.3):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.4.44
       rollup: 4.21.2
     optionalDependencies:
-      '@types/node': 22.5.2
+      '@types/node': 22.5.3
       fsevents: 2.3.3
 
-  vitest@2.0.5(@types/node@22.5.2):
+  vitest@2.0.5(@types/node@22.5.3):
     dependencies:
       '@ampproject/remapping': 2.3.0
       '@vitest/expect': 2.0.5
@@ -2536,11 +2536,11 @@ snapshots:
       tinybench: 2.9.0
       tinypool: 1.0.1
       tinyrainbow: 1.2.0
-      vite: 5.4.2(@types/node@22.5.2)
-      vite-node: 2.0.5(@types/node@22.5.2)
+      vite: 5.4.3(@types/node@22.5.3)
+      vite-node: 2.0.5(@types/node@22.5.3)
       why-is-node-running: 2.3.0
     optionalDependencies:
-      '@types/node': 22.5.2
+      '@types/node': 22.5.3
     transitivePeerDependencies:
       - less
       - lightningcss
