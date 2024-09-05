@@ -1,68 +1,40 @@
 import { 
-  createFnWithProps,
-  isFunction,
-  isObject,
-  keysOf,
-  TypedFunction, 
+  isFunction
 } from "inferred-types";
 import inquirer from "inquirer";
+import { isRequirementDescriptor } from "src/type-guards";
 import {  
   Ask, 
-  Choices, 
+  AskApi, 
   FromRequirements, 
   Prompt, 
-  Question, 
-  QuestionFn, 
-  QuestionOption, 
-  QuestionParams, 
-  QuestionReturns, 
+  QuestionType, 
+  RequirementDescriptor, 
   Requirements,
 } from "src/types/index";
 import { normalizeChoices } from "src/utils";
 
+const service = <
+  TType extends QuestionType,
+  TReq extends Requirements
+>(type: TType, req: TReq) => 
+  <TProp extends string>(
+    prop: TProp, 
+    prompt: Prompt<TReq>, 
+    opt
+) => {
 
-const askApi: Ask = <TReq extends Requirements>(_req: TReq) => ({
-  input<
-  TName extends string, 
-  TPrompt extends Prompt<TReq>,
-  TOpt extends QuestionOption<"input", TReq>
->(name: TName, prompt: TPrompt, opt: TOpt) {
-    let fn: TypedFunction & { [key: string]: unknown } = (async <T extends QuestionParams<TReq>>(...args: T) => {
-      let answers = isObject(args[0])
-        ? args[0]
-        : {};
-      
-        const message = isFunction(prompt) ? prompt(answers) : prompt;
-        const config = {
-          ...opt,
-          type: "input",
-          name,
-          message
-        };
-        const answer = await inquirer.prompt(config as any);
-
-      return {
-        ...answers,
-        ...answer
-      };
-    }) as unknown as QuestionFn<TReq, QuestionReturns<TName,"input",TReq>>;
+}
 
 
-    fn.kind = "question";
-    fn.question = name;
-    fn.prompt = isFunction(prompt) ? prompt.toString() : prompt;
-    fn.type = "input";
-
-
-    return fn;
-  },
-  number(name, prompt, opt) {
+const askApi: Ask = <TReq extends Requirements>(req: TReq) => ({
+  input(name, prompt, opt) {
     return async <T extends FromRequirements<TReq>>(answers?: T | undefined) => {
       const message = isFunction(prompt) ? prompt(answers) : prompt;
       const config = {
         ...opt,
-        type: "number",
-        name,
+        type: "input",
+        prop:name,
         message
       };
 
@@ -74,13 +46,49 @@ const askApi: Ask = <TReq extends Requirements>(_req: TReq) => ({
       };
     }
   },
-  list(name, prompt, choices, opt) {
+  number(name, prompt, opt) {
     return async <T extends FromRequirements<TReq>>(answers?: T | undefined) => {
       const message = isFunction(prompt) ? prompt(answers) : prompt;
       const config = {
         ...opt,
-        type: "list",
-        name,
+        type: "number",
+        prop:name,
+        message
+      };
+
+      const answer = await inquirer.prompt(config as any);
+
+      return {
+        ...answers,
+        ...answer
+      };
+    }
+  },
+  confirm(name, prompt, opt) {
+    return async <T extends FromRequirements<TReq>>(answers?: T | undefined) => {
+      const message = isFunction(prompt) ? prompt(answers) : prompt;
+      const config = {
+        ...opt,
+        type: "confirm",
+        prop:name,
+        message
+      };
+
+      const answer = await inquirer.prompt(config as any);
+
+      return {
+        ...answers,
+        ...answer
+      };
+    }
+  },
+  select(name, prompt, choices, opt) {
+    return async <T extends FromRequirements<TReq>>(answers?: T | undefined) => {
+      const message = isFunction(prompt) ? prompt(answers) : prompt;
+      const config = {
+        ...opt,
+        type: "select",
+        prop:name,
         message,
         choices: normalizeChoices(choices)
       };
@@ -99,7 +107,7 @@ const askApi: Ask = <TReq extends Requirements>(_req: TReq) => ({
       const config = {
         ...opt,
         type: "checkbox",
-        name,
+        prop:name,
         message,
         choices: normalizeChoices(choices, opt?.default)
       };
@@ -111,8 +119,93 @@ const askApi: Ask = <TReq extends Requirements>(_req: TReq) => ({
         ...answer
       };
     }
-  }
+  },
 
-})
+  rawlist(name, prompt, choices, opt) {
+    return async <T extends FromRequirements<TReq>>(answers?: T | undefined) => {
+      const message = isFunction(prompt) ? prompt(answers) : prompt;
+      const config = {
+        ...opt,
+        type: "rawlist",
+        prop:name,
+        message,
+        choices: normalizeChoices(choices)
+      };
+
+      const answer = await inquirer.prompt(config as any);
+
+      return {
+        ...answers,
+        ...answer
+      };
+    }
+  },
+  expand(name, prompt, opt) {
+    return async <T extends FromRequirements<TReq>>(answers?: T | undefined) => {
+      const message = isFunction(prompt) ? prompt(answers) : prompt;
+      const config = {
+        ...opt,
+        type: "expand",
+        prop:name,
+        message
+      };
+
+      const answer = await inquirer.prompt(config as any);
+
+      return {
+        ...answers,
+        ...answer
+      };
+    }
+  },
+
+  password(name, prompt, opt) {
+    return async <T extends FromRequirements<TReq>>(answers?: T | undefined) => {
+      const message = isFunction(prompt) ? prompt(answers) : prompt;
+      const config = {
+        ...opt,
+        type: "password",
+        prop:name,
+        message
+      };
+
+      const answer = await inquirer.prompt(config as any);
+
+      return {
+        ...answers,
+        ...answer
+      };
+    }
+  },
+
+  editor(name, prompt, opt) {
+    return async <T extends FromRequirements<TReq>>(answers?: T | undefined) => {
+      const message = isFunction(prompt) ? prompt(answers) : prompt;
+      const config = {
+        ...opt,
+        type: "editor",
+        prop:name,
+        message
+      };
+
+      const answer = await inquirer.prompt(config as any);
+
+      return {
+        ...answers,
+        ...answer
+      };
+    }
+  },
+
+  withRequirements: (
+    isRequirementDescriptor(req) 
+      ? req as Readonly<FromRequirements<TReq>>
+      : <T extends RequirementDescriptor>(req: T) => askApi(req)
+  ) as TReq extends RequirementDescriptor
+  ? Readonly<FromRequirements<TReq>>
+  : <T extends RequirementDescriptor>(req: T) => AskApi<T>,
+
+
+} as AskApi<TReq>)
 
 export const ask = askApi("no-requirements");

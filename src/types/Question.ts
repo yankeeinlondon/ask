@@ -1,13 +1,12 @@
-import { Answers,  QuestionType,  Requirements } from "./inquirer";
+import { Answers,  Requirements } from "./inquirer";
+import { QuestionType } from "./QuestionType";
 import {  QuestionParams } from "./utility";
 
 
 export type QuestionFn<
   TReq extends Requirements,
   TRtn extends Answers
-> = (<T extends QuestionParams<TReq>>(...args: T) => Promise<TRtn>) & {
-  [key: string]: unknown
-};
+> = (<T extends QuestionParams<TReq>>(...args: T) => Promise<TRtn>) 
 
 
 
@@ -24,7 +23,7 @@ export type QuestionProps<
   TPrompt extends string,
 > = {
   kind: "question",
-  name: TName,
+  question: TName,
   prompt: TPrompt,
   type: TType
 }
@@ -46,13 +45,13 @@ export type QuestionProps<
  * ```
  */
 export type Question<
-  TName extends string = string,
+  TProp extends string = string,
   TType extends QuestionType = QuestionType,
   TPrompt extends string = string,
   TFn extends QuestionFn<Requirements, Answers> = QuestionFn<Requirements, Answers>
 > = {
   kind: "question";
-  name: TName;
+  prop: TProp;
   prompt: TPrompt;
   type: TType;
 } & TFn;

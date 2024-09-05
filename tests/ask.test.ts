@@ -14,7 +14,7 @@ describe("ask API", () => {
     const name = ask.input("name", "What is your name?");
 
     expect(typeof name).toBe("function");
-    expect(name.name).toBe("name");
+    expect(name.prop).toBe("name");
     expect(name.type).toBe("input");
     expect(name.prompt).toBe("What is your name?");
 
@@ -26,12 +26,12 @@ describe("ask API", () => {
       ExpectTrue<DoesExtend<typeof name, Question>>,
 
       Expect<Equal<typeof name["kind"], "question">>,
-      Expect<Equal<typeof name["name"], "name">>,
+      Expect<Equal<typeof name["prop"], "name">>,
       Expect<Equal<typeof name["type"], "input">>,
       Expect<Equal<typeof name["prompt"], "What is your name?">>,
 
       Expect<Equal<Param, [] | [answers?: Record<string, unknown> | undefined]>>,
-      Expect<Equal<Return, { name: string; [key: string|symbol]: unknown }>>,
+      Expect<Equal<Return, { name: string; [key: string]: unknown }>>,
     ];
   });
 

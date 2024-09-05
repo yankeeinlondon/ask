@@ -1,5 +1,38 @@
 import { Dictionary, Scalar } from "inferred-types";
-import { Choice } from "./inquirer";
+
+/**
+ * A fully qualified definition of a choice
+ */
+export type Choice<T = unknown> = {
+  type: "choice";
+  /** 
+   * the actual _value_ which the question will be set to if this choice is selected */
+  value: T;
+  name: string;
+  description?: string;
+  /**
+   * Used in the `checkbox` type to indicate the initial state
+   */
+  checked?: boolean;
+  /**
+   * Once the prompt is done (press enter), we'll use `short` if defined to 
+   * render next to the question. By default we'll use `name`.
+   */
+  short?: string;
+  /**
+   * Disallow the option from being selected. If disabled is a string, it'll 
+   * be used as a help tip explaining why the choice isn't available.
+   */
+  disabled?: boolean | string;
+
+  /**
+   * used in the `expand` command to map a key value which maps to a given
+   * choice / action.
+   */
+  key?: string;
+}
+
+
 
 /**
  * An array of Choices represented in either it's full `Choice` form

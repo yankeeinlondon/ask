@@ -1,7 +1,18 @@
-import { TypedFunction } from "inferred-types";
-import {  Choices, Prompt, QuestionOption,  RequirementDescriptor, Requirements } from "./inquirer";
-import { Question, QuestionFn } from "./Question";
-import { AsQuestion, FromRequirements, QuestionReturns } from "./utility";
+
+import { Choices } from "./Choice";
+import {  
+  RequirementDescriptor, 
+  Requirements 
+} from "./inquirer";
+import { QuestionOption } from "./options";
+import { 
+  Question, 
+  QuestionFn 
+} from "./Question";
+import {  
+  FromRequirements, 
+  QuestionReturns 
+} from "./utility";
 
 
 /**
@@ -22,7 +33,7 @@ export type AskApi<
   TReq extends Requirements
 > = {
   /**
-   * **requirements**
+   * **withRequirements**
    * 
    * - if your question _requires_ that certain parameters be in the **Answers**
    * hash prior to your question you can express that here.
@@ -31,7 +42,7 @@ export type AskApi<
    * value which is in union with _undefined_.
    * 
    * ```ts
-   * requirements: {
+   * withRequirements: {
    *    needsProp: "string",
    *    wouldBeNice: "Opt<number>"
    * }
@@ -42,27 +53,26 @@ export type AskApi<
    * - both `needsProp` and `wouldBeNice` will be typed values when using a
    * callback for a prompt message or any other dynamic property.
    */
-  requirements: TReq extends RequirementDescriptor
+  withRequirements: TReq extends RequirementDescriptor
     ? Readonly<FromRequirements<TReq>>
     : <T extends RequirementDescriptor>(req: T) => AskApi<T>;
 
 
+
   input<
     TName extends string, 
-    TPrompt extends Prompt<TReq>,
+    TPrompt extends string,
     TOpt extends QuestionOption<"input", TReq>
   >(
     name: TName,
     prompt: TPrompt, 
     opt?: TOpt
-  ): Question<
-    TName,
-    "input",
-    TPrompt extends TypedFunction
-      ? ReturnType<TPrompt>
-      : TPrompt,
-    QuestionFn<TReq,QuestionReturns<TName, "input", TReq>>
-  >;
+   ): Question<
+        TName,
+        "input", 
+        TPrompt, 
+        QuestionFn<TReq, QuestionReturns<TName,"input",TReq>>
+      >;
 
   
   number<
@@ -73,7 +83,12 @@ export type AskApi<
     name: TName,
     prompt: TPrompt, 
     opt?: TOpt
-   ): AsQuestion<TName,"number",TReq, TPrompt>;
+   ): Question<
+        TName,
+        "number", 
+        TPrompt, 
+        QuestionFn<TReq, QuestionReturns<TName,"number",TReq>>
+      >;
   /**
    * **confirm**
    * 
@@ -92,19 +107,29 @@ export type AskApi<
     name: TName,
     prompt: TPrompt, 
     opt?: TOpt
-  ): AsQuestion<TName,"confirm",TReq, TPrompt>;
-  list<
+  ): Question<
+      TName,
+      "confirm", 
+      TPrompt, 
+      QuestionFn<TReq, QuestionReturns<TName,"confirm",TReq>>
+    >;
+  select<
     TName extends string, 
     TPrompt extends string,
     TRequire extends Requirements,
     TChoices extends Choices,
-    TOpt extends QuestionOption<"number", TRequire>
+    TOpt extends QuestionOption<"select", TRequire>
   >(
     name: TName,
     prompt: TPrompt, 
     choices: TChoices,
     opt?: TOpt
-  ): AsQuestion<TName,"confirm",TReq, TPrompt, TChoices>;
+  ): Question<
+      TName,
+      "select", 
+      TPrompt, 
+      QuestionFn<TReq, QuestionReturns<TName,"select",TReq,TChoices>>
+    >;
   rawlist<
     TName extends string, 
     TPrompt extends string,
@@ -116,18 +141,27 @@ export type AskApi<
     prompt: string, 
     choices: Choices,
     opt?: TOpt
-   ): AsQuestion<TName,"rawlist",TReq, TPrompt, TChoices>;
+   ): Question<
+      TName,
+      "rawlist", 
+      TPrompt, 
+      QuestionFn<TReq, QuestionReturns<TName,"rawlist",TReq,TChoices>>
+    >;
   expand<
     TName extends string, 
     TPrompt extends string,
     TRequire extends Requirements,
-    TChoices extends Choices,
     TOpt extends QuestionOption<"expand", TRequire>
   >(
     name: TName,
     prompt: string, 
     opt:TOpt
-  ): AsQuestion<TName,"expand",TReq, TPrompt, TChoices>;
+  ): Question<
+      TName,
+      "expand", 
+      TPrompt, 
+      QuestionFn<TReq, QuestionReturns<TName,"expand",TReq>>
+    >;
   checkbox<
     TName extends string, 
     TPrompt extends string,
@@ -139,28 +173,42 @@ export type AskApi<
     prompt: string, 
     choices: Choices,
     opt?: TOpt
-  ): AsQuestion<TName,"checkbox",TReq, TPrompt, TChoices>;
+  ): Question<
+      TName,
+      "checkbox", 
+      TPrompt, 
+      QuestionFn<TReq, QuestionReturns<TName,"checkbox",TReq,TChoices>>
+    >;
   password<
     TName extends string, 
     TPrompt extends string,
     TRequire extends Requirements,
-    TChoices extends Choices,
     TOpt extends QuestionOption<"password", TRequire>
   >(
     name: TName,
     prompt: string, 
     opt?: TOpt
-  ): AsQuestion<TName,"password",TReq, TPrompt, TChoices>;
+  ): Question<
+      TName,
+      "password", 
+      TPrompt, 
+      QuestionFn<TReq, QuestionReturns<TName,"password",TReq>>
+    >;
   editor<
     TName extends string, 
     TPrompt extends string,
     TRequire extends Requirements,
-    TChoices extends Choices,
     TOpt extends QuestionOption<"editor", TRequire>
   >(
     name: TName,
     prompt: string, 
     opt?: TOpt
-  ): AsQuestion<TName,"editor",TReq, TPrompt, TChoices>;
+  ): Question<
+      TName,
+      "editor", 
+      TPrompt, 
+      QuestionFn<TReq, QuestionReturns<TName,"editor",TReq>>
+    >;
+
 }
 

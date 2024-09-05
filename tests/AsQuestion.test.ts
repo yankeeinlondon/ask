@@ -83,7 +83,7 @@ describe("AsQuestion<TName,TType,TRequire,TPrompt,[TChoices]>", () => {
   it("list question, using array to define choices", () => {
     type Color = AsQuestion<
       "color",
-      "list",
+      "select",
       "no-requirements",
       "What is your favorite color?",
       [
@@ -102,7 +102,7 @@ describe("AsQuestion<TName,TType,TRequire,TPrompt,[TChoices]>", () => {
   it("list question, using dictionary to define choices", () => {
     type Color = AsQuestion<
       "color",
-      "list",
+      "select",
       "no-requirements",
       "What is your favorite color?",
       {

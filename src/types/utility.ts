@@ -2,7 +2,6 @@ import {
   AfterFirst,  
   As, 
   AsString,  
-  Defined,  
   EmptyObject, 
   ExpandDictionary, 
   FilterProps, 
@@ -11,22 +10,26 @@ import {
   IsEqual, 
   IsScalar, 
   Keys, 
-  ReduceValues, 
   RequiredProps,  
   SimpleType, 
   TypedFunction,
-  WithoutValue,
-  WithValue, 
 } from "inferred-types";
 import {  
-  Choice, 
   Prompt, 
-  QuestionType, 
   RequirementDescriptor, 
   Requirements 
 } from "./inquirer";
 import { Question, QuestionFn } from "./Question";
-import {  ChoiceArr, ChoiceDict, ChoiceDictProxy, ChoiceDictTuple, Choices, IsChoiceDictProxy } from "./choices";
+import {  
+  Choice,
+  ChoiceArr, 
+  ChoiceDict, 
+  ChoiceDictProxy, 
+  ChoiceDictTuple, 
+  Choices, 
+  IsChoiceDictProxy 
+} from "./Choice";
+import { QuestionType } from "./QuestionType";
 
 
 export type FromRequirements<T extends Requirements> = T extends "no-requirements"
@@ -191,7 +194,7 @@ export type QuestionReturns<
   ? ExpandDictionary< 
       Record<string, unknown> & FromRequirements<TRequire> & Record<TName,boolean> 
     >
-: TType extends "list"
+: TType extends "select"
   ? ExpandDictionary< 
       Record<string, unknown> & FromRequirements<TRequire> & ChoiceRecord<TName,TChoices> 
     >
