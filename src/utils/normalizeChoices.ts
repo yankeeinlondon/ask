@@ -1,6 +1,6 @@
 import { isArray, isNumber, isObject, isString, Never } from "inferred-types";
 import { isChoiceDictProxy } from "src/type-guards/isChoiceDIctProxy";
-import { Choice, ChoiceDict, Choices, ToChoices } from "src/types";
+import { Choice, ChoiceDict, ChoiceElement,  ToChoices } from "src/types";
 
 const isChoice = (val: unknown): val is Choice => {
   return isObject(val) && "value" in val;
@@ -34,7 +34,9 @@ const fromChoiceDict = (v: ChoiceDict) => {
  * choices are selected initially.
  */
 export const normalizeChoices = <
-  TChoice extends Choices,
+  TChoice extends (readonly N[] | Record<K,N>),
+  K extends string,
+  N extends ChoiceElement,
   TChecked extends unknown[]
 >(
   choices: TChoice,

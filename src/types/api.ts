@@ -1,5 +1,5 @@
 
-import { Choices } from "./Choice";
+import { ChoiceElement, Choices } from "./Choice";
 import {  
   RequirementDescriptor, 
   Requirements 
@@ -13,6 +13,8 @@ import {
   FromRequirements, 
   QuestionReturns 
 } from "./utility";
+
+
 
 
 /**
@@ -58,7 +60,9 @@ export type AskApi<
     : <T extends RequirementDescriptor>(req: T) => AskApi<T>;
 
 
-
+  /**
+   * configure a question which receives a textual input from the user
+   */
   input<
     TName extends string, 
     TPrompt extends string,
@@ -74,7 +78,9 @@ export type AskApi<
         QuestionFn<TReq, QuestionReturns<TName,"input",TReq>>
       >;
 
-  
+  /**
+   * configure a question which receives a numeric value from the user
+   */  
   number<
     TName extends string, 
     TPrompt extends string,
@@ -101,8 +107,7 @@ export type AskApi<
   confirm<
     TName extends string, 
     TPrompt extends string,
-    TRequire extends Requirements,
-    TOpt extends QuestionOption<"confirm", TRequire>
+    TOpt extends QuestionOption<"confirm", TReq>
   >(
     name: TName,
     prompt: TPrompt, 
@@ -116,9 +121,10 @@ export type AskApi<
   select<
     TName extends string, 
     TPrompt extends string,
-    TRequire extends Requirements,
-    TChoices extends Choices,
-    TOpt extends QuestionOption<"select", TRequire>
+    TChoices extends (readonly N[] | Record<K,N>),
+    K extends string,
+    N extends ChoiceElement,
+    TOpt extends QuestionOption<"select", TReq>
   >(
     name: TName,
     prompt: TPrompt, 
@@ -151,17 +157,20 @@ export type AskApi<
     TName extends string, 
     TPrompt extends string,
     TRequire extends Requirements,
+    TChoices extends Choices,
     TOpt extends QuestionOption<"expand", TRequire>
   >(
     name: TName,
     prompt: string, 
-    opt:TOpt
+    choices: TChoices,
+    opt?: TOpt
   ): Question<
       TName,
       "expand", 
       TPrompt, 
-      QuestionFn<TReq, QuestionReturns<TName,"expand",TReq>>
+      QuestionFn<TReq, QuestionReturns<TName,"expand",TReq,TChoices>>
     >;
+
   checkbox<
     TName extends string, 
     TPrompt extends string,

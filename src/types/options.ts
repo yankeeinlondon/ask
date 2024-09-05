@@ -1,8 +1,10 @@
-import { Choice } from "./Choice";
+
+import { Choice, Choices } from "./Choice";
 import { Answers, DynamicQuestionProp, Requirements, Separator } from "./inquirer";
 import { QuestionType } from "./QuestionType";
+import { ChoicesOutput, ToChoices } from "./utility";
 
-type BaseQuestionOptions<
+type BaseOptions<
   TBaseType,
   TRequire extends Requirements
 > = {
@@ -35,39 +37,53 @@ type BaseQuestionOptions<
    */
   when?: DynamicQuestionProp<boolean, Answers<TRequire>>;
 
-  /**
-   * Transforms the value to display to the user.
-   *
-   * @param input
-   * The input provided by the user.
-   *
-   * @param answers
-   * The answers provided by the users.
-   *
-   * @param flags
-   * Additional information about the value.
-   *
-   * @returns
-   * The value to display to the user.
-  */
-  transformer?(
-    input: TBaseType, 
-    answers: Answers<TRequire>, 
-    flags: { 
-      isFinal?: boolean | undefined 
-    }
-  ): string | Promise<TBaseType>;
 }
 
-
-export type InputQuestionOptions<
+/** options for a text input question */
+export type InputOptions<
   TRequire extends Requirements
-> = BaseQuestionOptions<string, TRequire>;
+> = BaseOptions<string, TRequire> & {
+
+  /**
+   * Transform/Format the raw value entered by the user. Once the prompt 
+   * is completed, isFinal will be true. This function is purely visual, 
+   * modify the answer in your code if needed.
+   */
+  transformer?(
+    input: string, 
+    flags?: { 
+      isFinal?: boolean | undefined 
+    }
+  ): string;
+
+  /**
+   * On submit, validate the filtered answered content. When returning a string,
+   * it'll be used as the error message displayed to the user. Note: returning 
+   * a rejected promise, we'll assume a code error happened and crash.
+   */
+  validate?(
+    input: string
+  ): boolean | string | Promise<string | boolean>;
+
+  theme?: {
+    prefix: string;
+    spinner: {
+      interval: number;
+      frames: string[];
+    };
+    style: {
+      answer: (text: string) => string;
+      message: (text: string) => string;
+      error: (text: string) => string;
+      defaultAnswer: (text: string) => string;
+    };
+  }
+};
 
 
-export type NumberQuestionOptions<
+export type NumberOptions<
   TRequire extends Requirements
-> = BaseQuestionOptions<number, TRequire> & {
+> = BaseOptions<number, TRequire> & {
   min?: number;
   max?: number;
   step?: number | 'any';
@@ -86,14 +102,82 @@ export type NumberQuestionOptions<
   };
 }
 
-export type ConfirmQuestionOptions<
+export type ConfirmOptions<
   TRequire extends Requirements
-> = BaseQuestionOptions<string, TRequire>;
+> = BaseOptions<boolean, TRequire> & {
+
+  /**
+   * Transform the prompt printed message to a custom string
+   */
+  transformer?(val: boolean): string;
+
+  /** Customize look of the prompt.  */
+  theme?: {
+    prefix: string;
+    spinner: {
+      interval: number;
+      frames: string[];
+    };
+    style: {
+      answer: (text: string) => string;
+      message: (text: string) => string;
+      defaultAnswer: (text: string) => string;
+    };
+  }
+};
+
+export type SearchOptions<
+  TRequire extends Requirements
+> = BaseOptions<string, TRequire> & {
+  /**
+   * A function which determines the _choices_ relevant to the search term.
+   */
+  source(term: string | void): Promise<Choice[]>;
+  /**
+   * By default, lists of choice longer than 7 will be paginated. 
+   * Use this option to control how many choices will appear on the screen 
+   * at once.
+   */
+  pageSize?: number;
+  /**
+   * On submit, validate the answer. When returning a string, it'll be used 
+   * as the error message displayed to the user. Note: returning a rejected 
+   * promise, we'll assume a code error happened and crash.
+   */
+  validate?(val: string): boolean | string | Promise<string | boolean>;
+
+  /** Customize look of the prompt. */
+  theme?: {
+    prefix: string;
+    spinner: {
+      interval: number;
+      frames: string[];
+    };
+    style: {
+      answer: (text: string) => string;
+      message: (text: string) => string;
+      error: (text: string) => string;
+      help: (text: string) => string;
+      highlight: (text: string) => string;
+      description: (text: string) => string;
+      disabled: (text: string) => string;
+      searchTerm: (text: string) => string;
+    };
+    icon: {
+      cursor: string;
+    };
+    helpMode: 'always' | 'never' | 'auto';
+  }
+}
 
 
-export type SelectQuestionOptions<
-  TRequire extends Requirements
-> = BaseQuestionOptions<string, TRequire> & {
+export type SelectOptions<
+  TRequire extends Requirements,
+  TChoices extends Choices
+> = BaseOptions<
+  ChoicesOutput<ToChoices<TChoices>>, 
+  TRequire
+> & {
   /**
    * By default, lists of choice longer than 7 will be paginated. 
    * Use this option to control how many choices will appear on the 
@@ -137,23 +221,99 @@ export type SelectQuestionOptions<
 };
 
 
-export type PasswordQuestionOptions<
+export type PasswordOptions<
   TRequire extends Requirements
-> = BaseQuestionOptions<string, TRequire> & {
+> = BaseOptions<string, TRequire> & {
   mask?: boolean | string;
+  /**
+   * On submit, validate the filtered answered content. When returning a string, 
+   * it'll be used as the error message displayed to the user. Note: returning 
+   * a rejected promise, we'll assume a code error happened and crash.
+   */
+  validate?: (password: string) => boolean | string | Promise<boolean | string>;
+
+  theme?: {
+    prefix: string;
+    spinner: {
+      interval: number;
+      frames: string[];
+    };
+    style: {
+      answer: (text: string) => string;
+      message: (text: string) => string;
+      error: (text: string) => string;
+      help: (text: string) => string;
+    };
+  };
 }
 
-export type RawlistQuestionOptions<
-  TRequire extends Requirements
-> = BaseQuestionOptions<unknown, TRequire> & {
-  /** the _prompt_ message */
-  message?: string;
-  choices?: readonly (string | Choice<unknown>)[];
+export type RawlistOptions<
+TRequire extends Requirements,
+TChoices extends Choices,
+> = BaseOptions<
+  ChoicesOutput<ToChoices<TChoices>>, 
+  TRequire
+> & {
+  /** 
+   * Customize look of the prompt:
+   */
+  theme: {
+    prefix: string;
+    spinner: {
+      interval: number;
+      frames: string[];
+    };
+    style: {
+      answer: (text: string) => string;
+      message: (text: string) => string;
+      error: (text: string) => string;
+      highlight: (text: string) => string;
+    };
+  }
 }
 
-export type EditorQuestionOptions<T extends Requirements> = BaseQuestionOptions<string, T> & {}
+export type EditorOptions<
+  TReq extends Requirements
+> = BaseOptions<string, TReq> & {
+  /**
+   * On submit, validate the content. When returning a string, it'll be used 
+   * as the error message displayed to the user. Note: returning a rejected 
+   * promise, we'll assume a code error happened and crash.
+   */
+  validate?(val: string): boolean | string | Promise<string|boolean>;
+  /**
+   * The file extension of the file being edited. Adding this will add color 
+   * highlighting to the file content in most editors.
+   * 
+   * This property is _not_ required but will default to `.txt` if not 
+   * specified.
+   */
+  postfix?: string;
+  /**
+   * Open the editor automatically without waiting for the user to press enter. 
+   * Note that this mean the user will not see the question! So make sure you have
+   * a default value that provide guidance if it's unclear what input is expected.
+   */
+  waitForUseInput?: boolean;
+  theme?: {
+    prefix: string;
+    spinner: {
+      interval: number;
+      frames: string[];
+    };
+    style: {
+      message: (text: string) => string;
+      error: (text: string) => string;
+      help: (text: string) => string;
+      key: (text: string) => string;
+    };
+  }
+}
 
-export type  ExpandQuestionOptions<T extends Requirements> = BaseQuestionOptions<string, T> & {
+export type  ExpandOptions<
+TReq extends Requirements,
+TChoices extends Choices,
+> = BaseOptions<ChoicesOutput<ToChoices<TChoices>>, TReq> & {
   /** Expand the choices by default */
   expanded?: boolean;
 
@@ -173,7 +333,14 @@ export type  ExpandQuestionOptions<T extends Requirements> = BaseQuestionOptions
   }
 };
 
-export type  CheckboxQuestionOptions<T extends Requirements> = BaseQuestionOptions<unknown[], T> & {
+export type  CheckboxOptions<
+  TReq extends Requirements,
+  TChoices extends Choices
+> = BaseOptions<
+  // array of union type
+  ChoicesOutput<ToChoices<TChoices>>[], 
+  TReq
+> & {
   /** 
    * Defaults to `true`. When set to `false`, the cursor will be constrained 
    * to the top and bottom of the choice list without looping.
@@ -195,15 +362,15 @@ export type  CheckboxQuestionOptions<T extends Requirements> = BaseQuestionOptio
    * used as the error message displayed to the user. Note: returning a 
    * rejected promise, we'll assume a code error happened and crash.
    */
-  validate?: (choices: Choice[]) =>  Promise<boolean | string>;
+  validate?(choices: Choice[]):  Promise<boolean | string>;
 
   theme?: {
     prefix: string;
-    spinner: {
+    spinner?: {
       interval: number;
       frames: string[];
     };
-    style: {
+    style?: {
       answer: (text: string) => string;
       message: (text: string) => string;
       error: (text: string) => string;
@@ -217,51 +384,63 @@ export type  CheckboxQuestionOptions<T extends Requirements> = BaseQuestionOptio
         selectedChoices: ReadonlyArray<Choice<T>>,
         allChoices: ReadonlyArray<Choice<T> | Separator>,
       ) => string;
+      icon?: {
+        checked: string;
+        unchecked: string;
+        cursor: string;
+      };
+      /** 
+       * Modes:
+       * 
+       * - `auto` (default): Hide the help tips after an interaction occurs. The 
+       * scroll tip will hide after any interactions, the selection tip will hide 
+       * as soon as a first selection is done.
+       * - `always`: The help tips will always show and never hide.
+       * - `never`: The help tips will never show.
+       */
+      helpMode?: 'always' | 'never' | 'auto';
     };
-    icon: {
-      checked: string;
-      unchecked: string;
-      cursor: string;
-    };
-    /** 
-     * Modes:
-     * 
-     * - `auto` (default): Hide the help tips after an interaction occurs. The 
-     * scroll tip will hide after any interactions, the selection tip will hide 
-     * as soon as a first selection is done.
-     * - `always`: The help tips will always show and never hide.
-     * - `never`: The help tips will never show.
-     */
-    helpMode: 'always' | 'never' | 'auto';
   }
 };
 
 
-
+/**
+ * lookup utility which matches the appropriate _options_
+ * for a given command.
+ */
 export type QuestionOption<
   TKind extends QuestionType,
-  TRequirements extends Requirements
+  TRequirements extends Requirements,
+  TChoices extends Choices | undefined = undefined
 > = 
     TKind extends "input"
-    ? InputQuestionOptions<TRequirements>
+    ? InputOptions<TRequirements>
     : TKind extends "number"
-    ? NumberQuestionOptions<TRequirements>
+    ? NumberOptions<TRequirements>
     : TKind extends "confirm"
-    ? ConfirmQuestionOptions<TRequirements>
+    ? ConfirmOptions<TRequirements>
     : TKind extends "select"
-    ? SelectQuestionOptions<TRequirements>
+    ? TChoices extends Choices  
+        ? SelectOptions<TRequirements, TChoices>
+        : never
     : TKind extends "rawlist"
-    ? RawlistQuestionOptions<TRequirements>
+    ?  TChoices extends Choices 
+      ? RawlistOptions<TRequirements, TChoices>
+      : never
     : TKind extends "expand"
-    ? ExpandQuestionOptions<TRequirements>
+    ? TChoices extends Choices
+      ? ExpandOptions<TRequirements, TChoices>
+      : never
     : TKind extends "checkbox"
-    ? CheckboxQuestionOptions<TRequirements>
+    ? TChoices extends Choices
+      ? CheckboxOptions<TRequirements, TChoices>
+      : never
     : TKind extends "password"
-    ? PasswordQuestionOptions<TRequirements>
+    ? PasswordOptions<TRequirements>
     : TKind extends "editor"
-    ? EditorQuestionOptions<TRequirements>
-    : TKind extends "branch"
-    ? {}
-    : {};
+    ? EditorOptions<TRequirements>
+    : TKind extends "search"
+    ? SearchOptions<TRequirements>
+    : never;
 
 

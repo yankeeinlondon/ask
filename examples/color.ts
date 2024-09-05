@@ -1,14 +1,12 @@
 import { ask } from "src/index";
 
 
-const question = ask.list(
+const question = ask.select(
   "color", 
   "What is your favorite color?", 
   ["red","blue","green"]
 );
 
-const answer = await question({});
+const answer = await question();
 
 console.log(answer);
-
-

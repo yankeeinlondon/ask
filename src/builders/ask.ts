@@ -1,200 +1,106 @@
 import { 
-  isFunction
+  createFnWithProps,
+  isFunction,
+  isString,
+  Never
 } from "inferred-types";
 import inquirer from "inquirer";
 import { isRequirementDescriptor } from "src/type-guards";
 import {  
   Ask, 
   AskApi, 
+  Choices, 
+  ChoicesByType, 
   FromRequirements, 
   Prompt, 
+  QuestionOption, 
   QuestionType, 
   RequirementDescriptor, 
   Requirements,
 } from "src/types/index";
 import { normalizeChoices } from "src/utils";
 
+
+
 const service = <
+  TReq extends Requirements,
   TType extends QuestionType,
-  TReq extends Requirements
->(type: TType, req: TReq) => 
-  <TProp extends string>(
-    prop: TProp, 
-    prompt: Prompt<TReq>, 
-    opt
+  TChoices extends Choices | undefined
+>(_req: TReq, type: TType, choices?: TChoices) => <
+  TName extends string,
+  TPrompt extends Prompt<TReq>,
+  TOpt extends QuestionOption<TType, TReq, TChoices> | undefined
+>(
+  name: TName,
+  prompt: TPrompt,
+  options?: TOpt,
 ) => {
+  const fn = async <T extends FromRequirements<TReq>>(answers?: T | undefined) => {
+    const message = isFunction(prompt) ? prompt(answers) : prompt;
+    const config = {
+      ...(options || {}),
+      type,
+      name,
+      message,
+      ...(
+        choices
+          ? {choices: normalizeChoices(choices, type === "checkbox" ? options?.default as string[] : undefined)}
+          : {}
+      )
+    };
 
+    const question = await inquirer.prompt(config as any);
+
+    return {
+      ...answers,
+      ...question
+    };
+  };
+
+  return createFnWithProps(fn, {
+    kind: "question",
+    prop: name,
+    prompt: isFunction(prompt) ? prompt.toString() : isString(prompt) ? prompt : "no message provided",
+    type,
+    choices: (
+      choices
+        ? normalizeChoices(choices)
+        : Never
+    ) as ChoicesByType<TType> & TChoices
+  })
 }
-
 
 const askApi: Ask = <TReq extends Requirements>(req: TReq) => ({
   input(name, prompt, opt) {
-    return async <T extends FromRequirements<TReq>>(answers?: T | undefined) => {
-      const message = isFunction(prompt) ? prompt(answers) : prompt;
-      const config = {
-        ...opt,
-        type: "input",
-        prop:name,
-        message
-      };
-
-      const answer = await inquirer.prompt(config as any);
-
-      return {
-        ...answers,
-        ...answer
-      };
-    }
+    return service(req, "input")(name,prompt,opt);
   },
   number(name, prompt, opt) {
-    return async <T extends FromRequirements<TReq>>(answers?: T | undefined) => {
-      const message = isFunction(prompt) ? prompt(answers) : prompt;
-      const config = {
-        ...opt,
-        type: "number",
-        prop:name,
-        message
-      };
-
-      const answer = await inquirer.prompt(config as any);
-
-      return {
-        ...answers,
-        ...answer
-      };
-    }
+    return service(req, "number")(name,prompt,opt);
   },
+  password(name, prompt, opt) {
+    return service(req, "password")(name,prompt, opt as any);
+  },
+
   confirm(name, prompt, opt) {
-    return async <T extends FromRequirements<TReq>>(answers?: T | undefined) => {
-      const message = isFunction(prompt) ? prompt(answers) : prompt;
-      const config = {
-        ...opt,
-        type: "confirm",
-        prop:name,
-        message
-      };
-
-      const answer = await inquirer.prompt(config as any);
-
-      return {
-        ...answers,
-        ...answer
-      };
-    }
+    return service(req, "confirm")(name, prompt,opt);
   },
   select(name, prompt, choices, opt) {
-    return async <T extends FromRequirements<TReq>>(answers?: T | undefined) => {
-      const message = isFunction(prompt) ? prompt(answers) : prompt;
-      const config = {
-        ...opt,
-        type: "select",
-        prop:name,
-        message,
-        choices: normalizeChoices(choices)
-      };
-
-      const answer = await inquirer.prompt(config as any);
-
-      return {
-        ...answers,
-        ...answer
-      };
-    }
+    return service(req, "select", choices)(name, prompt, opt);
   },
   checkbox(name, prompt, choices, opt) {
-    return async <T extends FromRequirements<TReq>>(answers?: T | undefined) => {
-      const message = isFunction(prompt) ? prompt(answers) : prompt;
-      const config = {
-        ...opt,
-        type: "checkbox",
-        prop:name,
-        message,
-        choices: normalizeChoices(choices, opt?.default)
-      };
-
-      const answer = await inquirer.prompt(config as any);
-
-      return {
-        ...answers,
-        ...answer
-      };
-    }
+    return service(req, "checkbox", choices)(name, prompt, opt);
   },
 
   rawlist(name, prompt, choices, opt) {
-    return async <T extends FromRequirements<TReq>>(answers?: T | undefined) => {
-      const message = isFunction(prompt) ? prompt(answers) : prompt;
-      const config = {
-        ...opt,
-        type: "rawlist",
-        prop:name,
-        message,
-        choices: normalizeChoices(choices)
-      };
-
-      const answer = await inquirer.prompt(config as any);
-
-      return {
-        ...answers,
-        ...answer
-      };
-    }
+    return service(req, "rawlist", choices)(name, prompt, opt);
   },
-  expand(name, prompt, opt) {
-    return async <T extends FromRequirements<TReq>>(answers?: T | undefined) => {
-      const message = isFunction(prompt) ? prompt(answers) : prompt;
-      const config = {
-        ...opt,
-        type: "expand",
-        prop:name,
-        message
-      };
-
-      const answer = await inquirer.prompt(config as any);
-
-      return {
-        ...answers,
-        ...answer
-      };
-    }
+  expand(name, prompt, choices, opt) {
+    return service(req, "expand", choices)(name, prompt, opt);
   },
 
-  password(name, prompt, opt) {
-    return async <T extends FromRequirements<TReq>>(answers?: T | undefined) => {
-      const message = isFunction(prompt) ? prompt(answers) : prompt;
-      const config = {
-        ...opt,
-        type: "password",
-        prop:name,
-        message
-      };
-
-      const answer = await inquirer.prompt(config as any);
-
-      return {
-        ...answers,
-        ...answer
-      };
-    }
-  },
 
   editor(name, prompt, opt) {
-    return async <T extends FromRequirements<TReq>>(answers?: T | undefined) => {
-      const message = isFunction(prompt) ? prompt(answers) : prompt;
-      const config = {
-        ...opt,
-        type: "editor",
-        prop:name,
-        message
-      };
-
-      const answer = await inquirer.prompt(config as any);
-
-      return {
-        ...answers,
-        ...answer
-      };
-    }
+    return service(req, "editor")(name, prompt, opt);
   },
 
   withRequirements: (

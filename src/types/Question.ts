@@ -1,6 +1,7 @@
+import { Choice } from "./Choice";
 import { Answers,  Requirements } from "./inquirer";
 import { QuestionType } from "./QuestionType";
-import {  QuestionParams } from "./utility";
+import {  ChoicesByType, QuestionParams } from "./utility";
 
 
 export type QuestionFn<
@@ -54,4 +55,5 @@ export type Question<
   prop: TProp;
   prompt: TPrompt;
   type: TType;
+  choices:  ChoicesByType<TType>;
 } & TFn;

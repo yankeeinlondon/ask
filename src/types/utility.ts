@@ -2,6 +2,7 @@ import {
   AfterFirst,  
   As, 
   AsString,  
+  DoesExtend,  
   EmptyObject, 
   ExpandDictionary, 
   FilterProps, 
@@ -9,10 +10,13 @@ import {
   GetEach, 
   IsEqual, 
   IsScalar, 
+  IsUnionArray, 
   Keys, 
+  Or, 
   RequiredProps,  
   SimpleType, 
   TypedFunction,
+  UnionArrayToTuple,
 } from "inferred-types";
 import {  
   Prompt, 
@@ -107,12 +111,10 @@ type _ToChoicesArr<T extends Choices> = {
     : never;
 }
 
-/**
- * converts all the _representations_ of choices into a tuple of
- * `Choice` objects.
- */
-export type ToChoices<T extends Choices> = T extends ChoiceArr
-? _ToChoicesArr<T>
+export type _ToChoices<T extends Choices> = T extends ChoiceArr
+? IsUnionArray<_ToChoicesArr<T>> extends true
+  ? UnionArrayToTuple<_ToChoicesArr<T>>
+  : _ToChoicesArr<T>
 : T extends ChoiceDict
   ? Keys<T> extends readonly string[]
     ? _ObjToChoice<T, Keys<T>>
@@ -120,12 +122,24 @@ export type ToChoices<T extends Choices> = T extends ChoiceArr
   : never;
 
 /**
+ * converts all the _representations_ of choices into a tuple of
+ * `Choice` objects.
+ */
+export type ToChoices<T extends Choices> = _ToChoices<T> extends readonly Choice[]
+  ? IsEqual<_ToChoices<T>["length"], number> extends true
+    ? _ToChoices<UnionArrayToTuple<T>>
+    : _ToChoices<T>
+  : never;
+
+
+/**
  * Reduces a tuple of `Choice` objects to a union type of possible types 
  * that could result from a given question.
  */
 export type ChoicesOutput<T extends readonly Choice[]> = {
   [K in keyof T]: T[K]["value"]
-}[number]
+}[number];
+
 
 export type Callback<
   TParams extends readonly unknown[],
@@ -137,6 +151,15 @@ export type AsyncCallback<
   TReturn
 > = <T extends TParams>(...params: T) => Promise<TReturn>;
 
+
+export type ChoicesByType<T extends QuestionType> = Or<[
+  DoesExtend<"select", T>,
+  DoesExtend<"rawlist", T>,
+  DoesExtend<"checkbox", T>,
+  DoesExtend<"expand", T>,
+]> extends true
+? readonly Choice[]
+: never;
 
 export type DescribeQuestion<
 TReq extends Requirements

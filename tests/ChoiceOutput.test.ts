@@ -10,6 +10,7 @@ import {ChoicesOutput, ToChoices} from "src/types";
 describe("ChoiceOutput<T>", () => {
   type C1 = ToChoices<["red","blue","green"]>;
   type O1 = ChoicesOutput<C1>;
+  type O1b = ToChoices<("red" | "blue" | "green")[]>;
   type C2 = ToChoices<{
     Red: "red",
     Blue: "blue",

@@ -1,4 +1,4 @@
-import { Dictionary, Scalar } from "inferred-types";
+
 
 /**
  * A fully qualified definition of a choice
@@ -32,7 +32,10 @@ export type Choice<T = unknown> = {
   key?: string;
 }
 
-
+export type ChoiceElement = string | number | boolean | null | undefined 
+| ChoiceDictTuple
+| ChoiceDictProxy
+| Choice<unknown>;
 
 /**
  * An array of Choices represented in either it's full `Choice` form
@@ -40,7 +43,7 @@ export type Choice<T = unknown> = {
  * converted into an array of `Choice` types by using the 
  * `ToChoices` type util.
  */
-export type ChoiceArr = readonly (string | number | boolean | null | undefined | Choice<unknown>)[];
+export type ChoiceArr = readonly ChoiceElement[];
 
 /**
  * when using the `ChoiceDict` structure of defining choices, the typical 
@@ -68,7 +71,7 @@ export type IsChoiceDictProxy<T> = T extends { value: unknown; [key: string]: un
  * the keys are the "names" and the values are the actual values of the
  * the individual choices.
  */
-export type ChoiceDict = Record<string, Scalar | Dictionary | ChoiceDictTuple>;
+export type ChoiceDict = Record<string, ChoiceElement>;
 
 
 /**
@@ -87,3 +90,8 @@ export type ChoiceDictProxy = Omit<Choice, "type" | "name">;
 export type Choices = 
 | ChoiceArr
 | ChoiceDict;
+
+
+// N extends Narrowable,
+//   K extends PropertyKey,
+//   T extends readonly (Record<K, N> | Narrowable)[]

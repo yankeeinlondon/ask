@@ -8,6 +8,7 @@ export type QuestionType =
 | "select"
 | "rawlist"
 | "expand"
+| "search"
 | "checkbox"
 | "password"
 | "editor";

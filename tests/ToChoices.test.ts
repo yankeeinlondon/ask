@@ -60,6 +60,28 @@ describe("ToChoices<T>", () => {
         ]>
       >
     ];
+  });
+
+  
+  it("configuring choices with a DictProxy object", () => {
+    type FileAction = ToChoices<{
+      Abort: { key: "a", value: "abort" },
+      Overwrite: { key: "o", value: "overwrite" },
+      Skip: { key: "s", value: "skip" }
+    }>;
+    
+    // @ts-ignore
+    type cases = [
+      Expect<HasSameValues<
+        FileAction,
+        [
+          { type: "choice"; name: "Abort"; value: "abort"; key: "a" },
+          { type: "choice"; name: "Overwrite"; value: "overwrite"; key: "o" },
+          { type: "choice"; name: "Skip"; value: "skip"; key: "s" },
+        ]
+      >>
+    ];
     
   });
+  
 });
