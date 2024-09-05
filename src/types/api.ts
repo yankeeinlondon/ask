@@ -1,9 +1,12 @@
 
-import { Dict, Dictionary, EmptyObject, ExpandDictionary, GetEach, Iff, Intersect, IntersectAll, RemoveIndexKeys } from "inferred-types";
+import { 
+  Dictionary, 
+  ExpandDictionary,
+  Intersect 
+} from "inferred-types";
 import { ChoiceElement, Choices } from "./Choice";
 import {  
-  Answers,
-  Prompt,
+
   RequirementDescriptor, 
   Requirements 
 } from "./inquirer";
@@ -12,7 +15,6 @@ import {
   Question, 
   QuestionFn 
 } from "./Question";
-import { QuestionType } from "./QuestionType";
 import {  
   FromRequirements, 
   QuestionReturns 
