@@ -12,8 +12,8 @@ importers:
         specifier: ^5.4.0
         version: 5.4.0
       inferred-types:
-        specifier: ^0.49.3
-        version: 0.49.3
+        specifier: ^0.49.5
+        version: 0.49.5
       inquirer:
         specifier: ^10.2.0
         version: 10.2.0
@@ -1022,8 +1022,8 @@ packages:
   inferred-types@0.46.1:
     resolution: {integrity: sha512-1VQVm6J7e1G6rXCaIIJoxIGiE80pR+GfhbK6QSPT04MOzHmIddm8I6TrWlA+GqkPaKo/CvkI/z/CYLVkJ3+BAA==}
 
-  inferred-types@0.49.3:
-    resolution: {integrity: sha512-omr79IFuymGkTcPL6oLTFbKfrBdllDLMS631W5xw0FFPojwWq2AhvZ8szkJR3TJbEI128Y/ZnjJsq977ItVEsQ==}
+  inferred-types@0.49.5:
+    resolution: {integrity: sha512-0QWkg/pEuUwpgyD9ImFAiAzZ8N18KZv5DEvMKPXu2QLDPWnpf+XC4clbFmp3l+07cQb7DULf9zRU0cdb8M3raQ==}
 
   inquirer@10.2.0:
     resolution: {integrity: sha512-OE/HDYrQAgeUPs3mKetfarr/EFiotdULUc7R2XvwqPHMEjFtCqNsfYDfCZ5baAKKtb9kCaKclNTTE9hSi7JFjg==}
@@ -2860,7 +2860,7 @@ snapshots:
 
   inferred-types@0.46.1: {}
 
-  inferred-types@0.49.3: {}
+  inferred-types@0.49.5: {}
 
   inquirer@10.2.0:
     dependencies:

@@ -1,6 +1,9 @@
 
+import { Dict, Dictionary, EmptyObject, ExpandDictionary, GetEach, Iff, Intersect, IntersectAll, RemoveIndexKeys } from "inferred-types";
 import { ChoiceElement, Choices } from "./Choice";
 import {  
+  Answers,
+  Prompt,
   RequirementDescriptor, 
   Requirements 
 } from "./inquirer";
@@ -9,12 +12,11 @@ import {
   Question, 
   QuestionFn 
 } from "./Question";
+import { QuestionType } from "./QuestionType";
 import {  
   FromRequirements, 
   QuestionReturns 
 } from "./utility";
-
-
 
 
 /**
@@ -239,4 +241,56 @@ export type AskApi<
     >;
 
 }
+
+
+export type SurveyCallback = <
+  TProp extends string,
+  TAnswers extends Dictionary
+>(prop: TProp, answers: TAnswers) => Promise<ExpandDictionary<
+  TAnswers & Record<TProp, unknown>
+>>;
+
+
+export type SurveyStep = Question<any,any,any,any> | SurveyCallback ;
+
+// export type Survey = {
+//   kind: "Survey";
+//   /** the sequence of steps (aka, questions and callbacks) to run when executed */
+//   sequence: {
+//     [K in keyof T]: T[K]["prop"]
+//   },
+
+//   /**
+//    * the actual steps/functions needed to complete the survey
+//    */
+//   steps: readonly SurveyStep[];
+
+//   /**
+//    * The state of the "answers" dictionary on completion of the survey.
+//    */
+//   answers: RemoveIndexKeys<ExpandDictionary<Intersect<{
+//     [K in keyof T]: Awaited<ReturnType<T[K]>>
+//   }>>>
+
+//   start<A extends Dictionary>(answers?: A): Promise<
+    
+//       ExpandDictionary<
+//         Intersect<{
+//           [K in keyof T]: Awaited<ReturnType<T[K]>>
+//         }> & Iff<A, EmptyObject>
+//       >
+//   >
+// }
+
+
+export type SurveyBuilder = <Q extends readonly Question<any,any,any,any>[]>(...question: Q) => ({
+  kind: "Survey";
+  sequence: {
+    [K in keyof Q]: Q[K]["prop"]
+  },
+  start: <I extends Dictionary>(initialState?: I) => any;
+  answers: ExpandDictionary<Intersect<{
+    [K in keyof Q]: Awaited<ReturnType<Q[K]>>
+  }>>
+})
 

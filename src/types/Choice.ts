@@ -1,3 +1,4 @@
+import { AlphaNumericChar, SpecialChar } from "inferred-types";
 
 
 /**
@@ -29,7 +30,7 @@ export type Choice<T = unknown> = {
    * used in the `expand` command to map a key value which maps to a given
    * choice / action.
    */
-  key?: string;
+  key?: `${AlphaNumericChar| SpecialChar}`;
 }
 
 export type ChoiceElement = string | number | boolean | null | undefined 
