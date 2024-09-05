@@ -118,6 +118,10 @@ export type AskApi<
       TPrompt, 
       QuestionFn<TReq, QuestionReturns<TName,"confirm",TReq>>
     >;
+
+  /**
+   * let the user choose one item from the "choices"
+   */ 
   select<
     TName extends string, 
     TPrompt extends string,
@@ -153,6 +157,10 @@ export type AskApi<
       TPrompt, 
       QuestionFn<TReq, QuestionReturns<TName,"rawlist",TReq,TChoices>>
     >;
+
+  /**
+   * Let user respond with shortcut keys on how they'd like to take action.
+   */
   expand<
     TName extends string, 
     TPrompt extends string,
@@ -171,6 +179,9 @@ export type AskApi<
       QuestionFn<TReq, QuestionReturns<TName,"expand",TReq,TChoices>>
     >;
 
+  /**
+   * Let the user choose as many "choices" as they would like.
+   */
   checkbox<
     TName extends string, 
     TPrompt extends string,
@@ -188,6 +199,10 @@ export type AskApi<
       TPrompt, 
       QuestionFn<TReq, QuestionReturns<TName,"checkbox",TReq,TChoices>>
     >;
+  /**
+   * as for a password or secret which will result in masked values when
+   * typed on the screen.
+   */
   password<
     TName extends string, 
     TPrompt extends string,
@@ -202,7 +217,11 @@ export type AskApi<
       "password", 
       TPrompt, 
       QuestionFn<TReq, QuestionReturns<TName,"password",TReq>>
-    >;
+  >;
+
+  /**
+   * ask a question which will be answered in the user's editor of choice
+   */
   editor<
     TName extends string, 
     TPrompt extends string,

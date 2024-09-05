@@ -100,7 +100,7 @@ const askApi: Ask = <TReq extends Requirements>(req: TReq) => ({
 
 
   editor(name, prompt, opt) {
-    return service(req, "editor")(name, prompt, opt);
+    return service(req, "editor")(name, prompt, opt as any);
   },
 
   withRequirements: (
@@ -114,4 +114,21 @@ const askApi: Ask = <TReq extends Requirements>(req: TReq) => ({
 
 } as AskApi<TReq>)
 
+/**
+ * **ask** API surface
+ * 
+ * Used to build/configure questions which can be asked later.
+ * 
+ * Types include:
+ * 
+ * - `input` - text input from user
+ * - `number` - numeric input from user
+ * - `password` - secret textual input from user (masked on screen)
+ * - `editor` - textual input with user's editor
+ * - `select` - choose 1 item from a set of "choices"
+ * - `checkbox` - choose 0:M items from a set of "choices"
+ * - `expand` - choose from a set of key bindings on action to take
+ * - `confirm` - get a binary yes/no confirmation
+ * - `search` - let user autocomplete from a set of terms
+ */
 export const ask = askApi("no-requirements");
