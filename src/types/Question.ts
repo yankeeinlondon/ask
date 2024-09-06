@@ -1,4 +1,3 @@
-import { Choice } from "./Choice";
 import { Answers,  Requirements } from "./inquirer";
 import { QuestionType } from "./QuestionType";
 import {  ChoicesByType, QuestionParams } from "./utility";
