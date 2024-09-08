@@ -332,7 +332,7 @@ export type CheckboxOptions<
   TChoices extends Choices,
 > = BaseOptions<
   // array of union type
-  ChoicesOutput<ToChoices<TChoices>, "checkbox">[],
+  ChoicesOutput<ToChoices<TChoices>, "checkbox">,
   TReq
 > & {
   /**

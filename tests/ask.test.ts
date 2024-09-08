@@ -1,6 +1,6 @@
 import { Equal, Expect, ExpectTrue } from "@type-challenges/utils";
 import { describe, expect, it } from "vitest";
-import { ask } from "src";
+import { ask, survey } from "src";
 import { DoesExtend } from "inferred-types";
 import { Question } from "src/types";
 
@@ -40,6 +40,7 @@ describe("ask API", () => {
     const name = ask
       .withRequirements({ title: "string(Mr.,Mrs.,Ms.)" })
       .input("name", "What is your name?");
+    survey;
 
     expect(typeof name).toBe("function");
     expect(name.prop).toBe("name");

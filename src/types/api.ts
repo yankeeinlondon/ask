@@ -164,6 +164,8 @@ export type AskApi<TReq extends Requirements> = {
   >;
 
   /**
+   * **checkbox**`(name, prompt, choices, [opt])`
+   *
    * Let the user choose as many "choices" as they would like.
    */
   checkbox<

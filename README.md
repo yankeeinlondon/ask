@@ -53,22 +53,22 @@ For questions which have _choices_, the third parameter -- after the property na
 ```ts
 /**
  * a simple array.
- * 
+ *
  * The elements in the array become both the keys and values of the
  * choices.
  */
 const color = ask.select(
-    "color", 
+    "color",
     "What is your favorite color?",
     ["red","blue","green"]
 );
 
 // using a simple key/value notation
 // -----------------------------------------------------------
-// the KEYS are the "names" of the choices, the VALUES are 
+// the KEYS are the "names" of the choices, the VALUES are
 // the actual value the answer will return.
 const color_obj = ask.select(
-    "color", 
+    "color",
     "What is your favorite color?",
     {
         Red: "red",
@@ -79,11 +79,11 @@ const color_obj = ask.select(
 
 /**
  *  Using a key/value where value is a tuple:
- *  
+ *
  * this allows you set both the value AND a description
- */ 
+ */
 const color_obj = ask.select(
-    "color", 
+    "color",
     "What is your favorite color?",
     {
         Red: ["red", "Red like a rose"],
@@ -94,17 +94,17 @@ const color_obj = ask.select(
 
 /**
  * Using the DictProxy shorthand
- * 
+ *
  * this allows any of the props available in the fully qualified
  * `Choice` type from being expressed:
- * 
+ *
  * - the "key" is the "name"
  * - you must state the "value"; otherwise all other props
  * are optional
  */
 
 const color_proxy = ask.select(
-    "color", 
+    "color",
     "What is your favorite color?",
     {
         Red: { value: "red", description: "Red like a rose" },
@@ -129,6 +129,28 @@ Where possible, we have attempted to _increase_ the commonality across question 
 
 ## `survey` Builder
 
-The survey builder's intent is to aid in the _composition_ of questions and interactive flows and to make the process as seamless as possible.
+- The survey builder's intent is to aid in the _composition_ of questions and interactive flows and to make the process as seamless as possible.
+- The API will look something like this:
+  ```ts
+  import { ask, survey } from "@yankeeinlondon/ask";
 
+  const q1 = ask.input(...);
+  const q2 = ask.input(...);
+  const q3 = ask.input(...);
 
+  const mySurvey = survey(q1,q2,q3);
+  ```
+
+- this API will accept any number of questions and ensure the following:
+  - each question at runtime will be run in the specified order
+  - at design time, if a question has "requirements" (aka, configured using the `withRequirements()` part of the `ask()` builder API -- a type error will be raised unless a question _prior_ to this dependant question _provides_ this information (aka, meets the requirement).
+- when a survey is configured (as is seen the above example) we are then exposed to a simple API surface which exposes a `start()` function:
+
+  ```ts
+  export type ConfiguredSurvey<...> = {
+    start<T extends Record<string, unknown> | undefined>(initialState?: T) => Answers
+  }
+  ```
+
+- this `start()` call offers an optional way to start with a known state or leave it undefined for no initial state
+- the end result is a dictionary of key/values which is the aggregation of each question's response

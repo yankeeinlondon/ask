@@ -1,0 +1,65 @@
+import { describe, it, vi, expect, beforeEach } from "vitest";
+import { ask, survey } from "../src";
+import { Equal, Expect } from "@type-challenges/utils";
+import type { Mock } from "vitest";
+
+// Create a mock module for inquirer
+const inquirerMock = {
+  prompt: vi.fn(),
+};
+
+// Mock the entire inquirer module
+vi.mock("inquirer", () => ({
+  default: inquirerMock,
+}));
+
+describe("survey() tests", () => {
+  const name = ask.input("name", "What's your name?");
+  const age = ask.number("age", "How old are you?");
+  const color = ask.select("color", "What's your favorite color?", [
+    "red",
+    "green",
+    "blue",
+  ]);
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it.skip("happy path", async () => {
+    // Set up the mock implementation
+    (inquirerMock.prompt as Mock).mockImplementation((questions: any[]) => {
+      return Promise.resolve(
+        questions.reduce((acc, q) => {
+          if (q.name === "name") return { ...acc, name: "Mock Name" };
+          if (q.name === "age") return { ...acc, age: 30 };
+          if (q.name === "color") return { ...acc, color: "red" };
+          return acc;
+        }, {}),
+      );
+    });
+
+    const initialState = { foo: "bar" };
+    const s = survey(name, age, color);
+    const result = await s.start(initialState);
+
+    // Check the actual values
+    expect(result).toEqual({
+      foo: "bar",
+      name: "Mock Name",
+      age: 30,
+      color: "red",
+    });
+
+    // Check that inquirer.prompt was called once
+    expect(inquirerMock.prompt).toHaveBeenCalledTimes(1);
+
+    // @ts-ignore
+    type cases = [
+      Expect<Equal<(typeof result)["foo"], string>>,
+      Expect<Equal<(typeof result)["name"], string>>,
+      Expect<Equal<(typeof result)["age"], number>>,
+      Expect<Equal<(typeof result)["color"], "red" | "blue" | "green">>,
+    ];
+  });
+});
