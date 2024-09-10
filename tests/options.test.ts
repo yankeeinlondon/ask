@@ -53,7 +53,34 @@ describe("Question Options", () => {
 
     // @ts-ignore
     type cases = [
-      Expect<Equal<ODefault, ("red" | "blue" | "green")[]>>, //
+      Expect<Equal<ODefault, ("red" | "blue" | "green")[] | undefined>>, //
+    ];
+  });
+
+  it("checkbox options with requirements", () => {
+    type O = QuestionOption<
+      "checkbox",
+      { prior: "string(red,green,blue)" },
+      ToChoices<["red", "blue", "green"]>
+    >;
+    type ODefault = O["default"];
+
+    // @ts-ignore
+    type cases = [
+      Expect<
+        Equal<
+          ODefault, //
+          | ("red" | "blue" | "green")[]
+          | (<
+              T extends {
+                prior: "red" | "blue" | "green";
+              },
+            >(
+              answers: T,
+            ) => ("red" | "blue" | "green")[] | undefined)
+          | undefined
+        >
+      >, //
     ];
   });
 });

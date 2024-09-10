@@ -338,8 +338,7 @@ export type ExpandOptions<
 export type CheckboxOptions<
   TReq extends Requirements,
   TChoices extends readonly Choice[],
-> = Omit<BaseOptions<unknown[], TReq>, "default"> & {
-  default: ChoicesOutput<TChoices, "checkbox">;
+> = BaseOptions<ChoicesOutput<TChoices, "checkbox">, TReq> & {
   /**
    * Defaults to `true`. When set to `false`, the cursor will be constrained
    * to the top and bottom of the choice list without looping.
