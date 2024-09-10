@@ -18,6 +18,31 @@ describe("Question Options", () => {
     ];
   });
 
+  it("select options with requirements", () => {
+    type O = QuestionOption<
+      "select",
+      { prior: "string(red,blue,green)" },
+      ToChoices<["red", "blue", "green"]>
+    >;
+    type ODefault = O["default"];
+
+    // @ts-ignore
+    type cases = [
+      Expect<
+        Equal<
+          ODefault, //
+          | "red"
+          | "blue"
+          | "green"
+          | (<T extends { prior: "red" | "blue" | "green" }>(
+              answers: T,
+            ) => "red" | "blue" | "green" | undefined)
+          | undefined
+        >
+      >, //
+    ];
+  });
+
   it("checkbox options", () => {
     type O = QuestionOption<
       "checkbox",

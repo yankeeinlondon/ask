@@ -1,7 +1,9 @@
+import { DoesExtend, If } from "inferred-types";
 import { Choice, Choices } from "./Choice";
 import {
   Answers,
   DynamicQuestionProp,
+  RequirementDescriptor,
   Requirements,
   Separator,
 } from "./inquirer";
@@ -10,7 +12,13 @@ import { ChoicesOutput } from "./utility";
 
 export type BaseOptions<TBaseType, TRequire extends Requirements> = {
   /** the default value to start with */
-  default?: TBaseType;
+  default?:
+    | TBaseType
+    | If<
+        DoesExtend<TRequire, RequirementDescriptor>, //
+        <T extends Answers<TRequire>>(answers: T) => TBaseType | undefined,
+        never
+      >;
   /** boolean flag indicating if a value is _required_ from this question */
   required?: boolean;
 
