@@ -1,12 +1,15 @@
-import { Answers, Requirements } from "./inquirer";
+import { TypedFunction } from "inferred-types";
+import { Requirements } from "./inquirer";
 import { QuestionType } from "./QuestionType";
-import { ChoicesByType, QuestionParams } from "./utility";
+import { QuestionParams } from "./utility";
 
-export type QuestionFn<TReq extends Requirements, TRtn extends Answers> = <
-  T extends QuestionParams<TReq>,
->(
-  ...args: T
-) => Promise<TRtn>;
+/**
+ * type utility which ensures a `Questions` function is correctly typed
+ */
+export type QuestionFn<
+  TReq extends Requirements, //
+  TRtn,
+> = <T extends QuestionParams<TReq>>(...args: T) => Promise<TRtn>;
 
 export type QuestionProps<
   TName extends string,
@@ -39,14 +42,10 @@ export type Question<
   TProp extends string = string,
   TType extends QuestionType = QuestionType,
   TPrompt extends string = string,
-  TFn extends QuestionFn<Requirements, Answers> = QuestionFn<
-    Requirements,
-    Answers
-  >,
+  TFn extends TypedFunction = TypedFunction,
 > = {
   kind: "question";
   prop: TProp;
   prompt: TPrompt;
   type: TType;
-  choices: ChoicesByType<TType>;
 } & TFn;

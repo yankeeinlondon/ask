@@ -15,6 +15,8 @@ type Process<T extends readonly Choice[]> = {
 export type Produces<
   TType extends QuestionType,
   TChoices extends Choices,
-> = TType extends QuestionsWithMultiSelect
-  ? Array<Process<ToChoices<TChoices>>>
-  : Process<ToChoices<TChoices>>;
+> = TChoices extends Choices
+  ? TType extends QuestionsWithMultiSelect
+    ? Process<ToChoices<TChoices>>
+    : Process<ToChoices<TChoices>>
+  : never;

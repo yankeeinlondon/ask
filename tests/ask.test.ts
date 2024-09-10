@@ -17,8 +17,9 @@ describe("ask API", () => {
     expect(name.type).toBe("input");
     expect(name.prompt).toBe("What is your name?");
 
-    type Param = Parameters<typeof name>;
-    type Return = Awaited<ReturnType<typeof name>>;
+    type T = typeof name;
+    type Param = Parameters<T>;
+    type Return = Awaited<ReturnType<T>>;
 
     // @ts-ignore
     type cases = [
@@ -103,12 +104,46 @@ describe("ask API", () => {
     ];
   });
 
-  it("checkbox question, no requirements", () => {
-    const question = ask.checkbox("color", "What is your favorite color?", [
+  it("select question, no requirements", () => {
+    const question = ask.select("color", "What is your favorite color?", [
       "red",
       "blue",
       "green",
     ]);
+
+    type Param = Parameters<typeof question>;
+    type Return = Awaited<ReturnType<typeof question>>;
+
+    // @ts-ignore
+    type cases = [
+      ExpectTrue<DoesExtend<typeof question, Question>>,
+
+      Expect<Equal<(typeof question)["kind"], "question">>,
+      Expect<Equal<(typeof question)["prop"], "color">>,
+      Expect<Equal<(typeof question)["type"], "select">>,
+      Expect<
+        Equal<(typeof question)["prompt"], "What is your favorite color?">
+      >,
+
+      Expect<
+        Equal<Param, [] | [answers?: Record<string, unknown> | undefined]>
+      >,
+      Expect<
+        Equal<
+          Return,
+          { color: "red" | "green" | "blue"; [key: string]: unknown }
+        >
+      >,
+    ];
+  });
+
+  it("checkbox question, no requirements", () => {
+    const question = ask.checkbox(
+      "color",
+      "What is your favorite color?",
+      ["red", "blue", "green"],
+      { default: ["red", "blue"] },
+    );
 
     type Param = Parameters<typeof question>;
     type Return = Awaited<ReturnType<typeof question>>;

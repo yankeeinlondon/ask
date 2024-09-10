@@ -1,9 +1,9 @@
-import { Dictionary, ExpandDictionary, Intersect } from "inferred-types";
-import { ChoiceElement, Choices } from "./Choice";
+import { As, Dictionary, ExpandDictionary, Intersect } from "inferred-types";
+import { Choice, ChoiceElement, Choices } from "./Choice";
 import { RequirementDescriptor, Requirements } from "./inquirer";
 import { QuestionOption } from "./options";
 import { Question, QuestionFn } from "./Question";
-import { FromRequirements, QuestionReturns } from "./utility";
+import { FromRequirements, QuestionReturns, ToChoices } from "./utility";
 
 /**
  * **Ask**
@@ -110,7 +110,11 @@ export type AskApi<TReq extends Requirements> = {
     TChoices extends readonly N[] | Record<K, N>,
     K extends string,
     N extends ChoiceElement,
-    TOpt extends QuestionOption<"select", TReq>,
+    TOpt extends QuestionOption<
+      "select",
+      TReq,
+      As<ToChoices<TChoices>, readonly Choice[]>
+    >,
   >(
     name: TName,
     prompt: TPrompt,
@@ -128,7 +132,11 @@ export type AskApi<TReq extends Requirements> = {
     TChoices extends readonly N[] | Record<K, N>,
     K extends string,
     N extends ChoiceElement,
-    TOpt extends QuestionOption<"rawlist", TReq>,
+    TOpt extends QuestionOption<
+      "rawlist",
+      TReq,
+      As<ToChoices<TChoices>, readonly Choice[]>
+    >,
   >(
     name: TName,
     prompt: string,
@@ -150,7 +158,11 @@ export type AskApi<TReq extends Requirements> = {
     TChoices extends readonly N[] | Record<K, N>,
     K extends string,
     N extends ChoiceElement,
-    TOpt extends QuestionOption<"expand", TReq>,
+    TOpt extends QuestionOption<
+      "expand",
+      TReq,
+      As<ToChoices<TChoices>, readonly Choice[]>
+    >,
   >(
     name: TName,
     prompt: string,
@@ -174,7 +186,11 @@ export type AskApi<TReq extends Requirements> = {
     TChoices extends readonly N[] | Record<K, N>,
     K extends string,
     N extends ChoiceElement,
-    TOpt extends QuestionOption<"checkbox", TReq>,
+    TOpt extends QuestionOption<
+      "checkbox",
+      TReq,
+      As<ToChoices<TChoices>, readonly Choice[]>
+    >,
   >(
     name: TName,
     prompt: TPrompt,

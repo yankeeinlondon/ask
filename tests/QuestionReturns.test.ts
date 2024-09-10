@@ -1,7 +1,7 @@
 import { Equal, Expect } from "@type-challenges/utils";
 import { ask } from "src";
 import { QuestionReturns } from "src/types";
-import { describe, expect, it } from "vitest";
+import { describe, it } from "vitest";
 
 // Note: while type tests clearly fail visible inspection, they pass from Vitest
 // standpoint so always be sure to run `tsc --noEmit` over your test files to
@@ -54,7 +54,6 @@ describe("QuestionReturns<Name,Type,Require,[Choices]>", () => {
       "green",
     ]);
 
-    expect(color.choices.map((v) => v.value)).toEqual(["red", "blue", "green"]);
     type C1 = Awaited<ReturnType<typeof color>>;
 
     const color2 = ask.select("color", "What's your favorite color?", {
@@ -62,6 +61,7 @@ describe("QuestionReturns<Name,Type,Require,[Choices]>", () => {
       Blue: "blue",
       Green: "green",
     });
+
     type C2 = Awaited<ReturnType<typeof color2>>;
 
     // @ts-ignore

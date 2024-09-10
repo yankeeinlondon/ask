@@ -16,7 +16,6 @@ import {
   UnionArrayToTuple,
 } from "inferred-types";
 import { Prompt, RequirementDescriptor, Requirements } from "./inquirer";
-import { Question, QuestionFn } from "./Question";
 import {
   Choice,
   ChoiceArr,
@@ -30,8 +29,8 @@ import {
   QuestionsWithChoices,
   QuestionsWithMultiSelect,
   QuestionType,
+  QuestionTypeLookup,
 } from "./QuestionType";
-import { Produces } from "./Produces";
 
 export type FromRequirements<T extends Requirements> =
   T extends "no-requirements"
@@ -148,15 +147,15 @@ export type ToChoices<T extends Choices> =
       : _ToChoices<T>
     : never;
 
+type _ToChoiceValues<T extends readonly Choice[]> = {
+  [K in keyof T]: T[K] extends Choice ? T[K]["value"] : never;
+};
+
 /**
  * converts `Choices` into the _values_ which those `Choices`
  * represent.
  */
-export type ToChoiceValues<T extends Choices> = {
-  [K in keyof ToChoices<T>]: ToChoices<T>[K] extends Choice
-    ? ToChoices<T>[K]["value"]
-    : never;
-};
+export type ToChoiceValues<T extends Choices> = _ToChoiceValues<ToChoices<T>>;
 
 type _ChoicesOutput<T extends readonly Choice[]> = {
   [K in keyof T]: T[K]["value"];
@@ -194,21 +193,30 @@ export type DescribeQuestion<TReq extends Requirements> =
     : `(answers: Answers) => Answers`;
 
 /**
- * returns the _type_ (typically a union type) of a set of choices
- * in a question.
+ * returns the _type_ of a set of choices
+ * in a question; typically a union type but for types
+ * have the ability to select multiple choices it will
+ * be an array of the union type.
  */
-type ChoiceRecord<
+export type ChoiceReturns<
   //
   TName extends string,
+  TType extends QuestionType,
   TChoices extends Choices,
 > = Record<
   TName,
   ToChoices<TChoices> extends readonly Choice[]
-    ? {
-        [K in keyof ToChoices<TChoices>]: ToChoices<TChoices>[K] extends Choice
-          ? ToChoices<TChoices>[K]["value"]
-          : never;
-      }[number]
+    ? TType extends QuestionsWithMultiSelect
+      ? {
+          [K in keyof ToChoices<TChoices>]: ToChoices<TChoices>[K] extends Choice
+            ? ToChoices<TChoices>[K]["value"]
+            : never;
+        }[number][]
+      : {
+          [K in keyof ToChoices<TChoices>]: ToChoices<TChoices>[K] extends Choice
+            ? ToChoices<TChoices>[K]["value"]
+            : never;
+        }[number]
     : never
 >;
 
@@ -225,59 +233,20 @@ export type QuestionReturns<
   TName extends string,
   TType extends QuestionType,
   TRequire extends Requirements,
-  TChoices extends Choices = [],
-> = TType extends "input"
+  TChoices extends TType extends QuestionsWithChoices
+    ? Choices
+    : [] = TType extends QuestionsWithChoices ? Choices : [],
+> = TType extends QuestionsWithChoices
   ? ExpandDictionary<
       Record<string, unknown> &
         FromRequirements<TRequire> &
-        Record<TName, string>
+        ChoiceReturns<TName, TType, TChoices>
     >
-  : TType extends "editor"
-    ? ExpandDictionary<
-        Record<string, unknown> &
-          FromRequirements<TRequire> &
-          Record<TName, string>
-      >
-    : TType extends "password"
-      ? ExpandDictionary<
-          Record<string, unknown> &
-            FromRequirements<TRequire> &
-            Record<TName, string>
-        >
-      : TType extends "number"
-        ? ExpandDictionary<
-            Record<string, unknown> &
-              FromRequirements<TRequire> &
-              Record<TName, number>
-          >
-        : TType extends "confirm"
-          ? ExpandDictionary<
-              Record<string, unknown> &
-                FromRequirements<TRequire> &
-                Record<TName, boolean>
-            >
-          : TType extends "select"
-            ? ExpandDictionary<
-                Record<string, unknown> &
-                  FromRequirements<TRequire> &
-                  ChoiceRecord<TName, TChoices>
-              >
-            : TType extends "rawlist"
-              ? ExpandDictionary<
-                  Record<string, unknown> &
-                    FromRequirements<TRequire> &
-                    ChoiceRecord<TName, TChoices>
-                >
-              : TType extends "checkbox"
-                ? ExpandDictionary<
-                    // index type
-                    Record<string, unknown> &
-                      // requirements
-                      FromRequirements<TRequire> &
-                      // answer
-                      Record<TName, Produces<TType, TChoices>>
-                  >
-                : never;
+  : ExpandDictionary<
+      Record<string, unknown> &
+        FromRequirements<TRequire> &
+        Record<TName, QuestionTypeLookup<TType>>
+    >;
 
 /**
  * type utility which determines what a Question's parameters
@@ -306,16 +275,3 @@ export type AsPrompt<
   : TPrompt extends string
     ? TPrompt
     : never;
-
-export type AsQuestion<
-  TName extends string,
-  TType extends QuestionType,
-  TRequire extends Requirements,
-  TPrompt extends Prompt<TRequire>,
-  TChoices extends Choices = [],
-> = Question<
-  TName,
-  TType,
-  AsPrompt<TRequire, TPrompt>,
-  QuestionFn<TRequire, QuestionReturns<TName, TType, TRequire, TChoices>>
->;

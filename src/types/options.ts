@@ -6,9 +6,9 @@ import {
   Separator,
 } from "./inquirer";
 import { QuestionType } from "./QuestionType";
-import { ChoicesOutput, ToChoices } from "./utility";
+import { ChoicesOutput } from "./utility";
 
-type BaseOptions<TBaseType, TRequire extends Requirements> = {
+export type BaseOptions<TBaseType, TRequire extends Requirements> = {
   /** the default value to start with */
   default?: TBaseType;
   /** boolean flag indicating if a value is _required_ from this question */
@@ -172,8 +172,8 @@ export type SearchOptions<TRequire extends Requirements> = BaseOptions<
 
 export type SelectOptions<
   TRequire extends Requirements,
-  TChoices extends Choices,
-> = BaseOptions<ChoicesOutput<ToChoices<TChoices>, "select">, TRequire> & {
+  TChoices extends readonly Choice[],
+> = BaseOptions<ChoicesOutput<TChoices, "select">, TRequire> & {
   /**
    * By default, lists of choice longer than 7 will be paginated.
    * Use this option to control how many choices will appear on the
@@ -191,7 +191,7 @@ export type SelectOptions<
       interval: number;
       frames: string[];
     };
-    style: {
+    style?: {
       answer: (text: string) => string;
       message: (text: string) => string;
       error: (text: string) => string;
@@ -200,7 +200,7 @@ export type SelectOptions<
       description: (text: string) => string;
       disabled: (text: string) => string;
     };
-    icon: {
+    icon?: {
       cursor: string;
     };
     /**
@@ -212,7 +212,7 @@ export type SelectOptions<
      * - `always`: The help tips will always show and never hide.
      * - `never`: The help tips will never show.
      */
-    helpMode: "always" | "never" | "auto";
+    helpMode?: "always" | "never" | "auto";
   };
 };
 
@@ -245,12 +245,12 @@ export type PasswordOptions<TRequire extends Requirements> = BaseOptions<
 
 export type RawlistOptions<
   TRequire extends Requirements,
-  TChoices extends Choices,
-> = BaseOptions<ChoicesOutput<ToChoices<TChoices>, "rawlist">, TRequire> & {
+  TChoices extends readonly Choice[],
+> = BaseOptions<ChoicesOutput<TChoices, "rawlist">, TRequire> & {
   /**
    * Customize look of the prompt:
    */
-  theme: {
+  theme?: {
     prefix: string;
     spinner: {
       interval: number;
@@ -306,8 +306,8 @@ export type EditorOptions<TReq extends Requirements> = BaseOptions<
 
 export type ExpandOptions<
   TReq extends Requirements,
-  TChoices extends Choices,
-> = BaseOptions<ChoicesOutput<ToChoices<TChoices>, "expand">, TReq> & {
+  TChoices extends readonly Choice[],
+> = BaseOptions<ChoicesOutput<TChoices, "expand">, TReq> & {
   /** Expand the choices by default */
   expanded?: boolean;
 
@@ -329,12 +329,9 @@ export type ExpandOptions<
 
 export type CheckboxOptions<
   TReq extends Requirements,
-  TChoices extends Choices,
-> = BaseOptions<
-  // array of union type
-  ChoicesOutput<ToChoices<TChoices>, "checkbox">,
-  TReq
-> & {
+  TChoices extends readonly Choice[],
+> = Omit<BaseOptions<unknown[], TReq>, "default"> & {
+  default: ChoicesOutput<TChoices, "checkbox">;
   /**
    * Defaults to `true`. When set to `false`, the cursor will be constrained
    * to the top and bottom of the choice list without looping.
@@ -404,7 +401,7 @@ export type CheckboxOptions<
 export type QuestionOption<
   TKind extends QuestionType,
   TRequirements extends Requirements,
-  TChoices extends Choices | undefined = undefined,
+  TChoices extends readonly Choice[] | [] = [],
 > = TKind extends "input"
   ? InputOptions<TRequirements>
   : TKind extends "number"
