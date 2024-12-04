@@ -17,8 +17,10 @@ export function survey<T extends readonly SurveyStep[]>(
       let answers: Record<string, unknown> = initialState || {};
 
       for (const step of steps) {
-        const stepAnswer = await step(answers);
-        answers = { ...answers, ...stepAnswer };
+        if (step.when && step.when(answers)) {
+          const stepAnswer = await step(answers);
+          answers = { ...answers, ...stepAnswer };
+        }
       }
 
       return answers as ExpandDictionary<

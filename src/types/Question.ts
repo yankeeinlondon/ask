@@ -48,4 +48,5 @@ export type Question<
   prop: TProp;
   prompt: TPrompt;
   type: TType;
+  when: (answers: Record<string, any>) => boolean;
 } & TFn;

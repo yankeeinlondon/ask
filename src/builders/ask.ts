@@ -86,6 +86,7 @@ const service =
           ? prompt
           : "no message provided",
       type,
+      when: options?.when || (() => true),
     }) as unknown as Question<
       TName,
       TType,
