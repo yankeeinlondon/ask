@@ -68,6 +68,8 @@ const service =
             }
           : {}),
       };
+      // when clause checked at survey level
+      delete config.when;
 
       const question = await inquirer.prompt(config as any);
 

@@ -17,7 +17,7 @@ export function survey<T extends readonly SurveyStep[]>(
       let answers: Record<string, unknown> = initialState || {};
 
       for (const step of steps) {
-        if (step.when && step.when(answers)) {
+        if (step.when(answers) === true) {
           const stepAnswer = await step(answers);
           answers = { ...answers, ...stepAnswer };
         }
