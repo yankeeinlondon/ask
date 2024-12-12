@@ -1,13 +1,13 @@
-import { Equal, Expect } from "@type-challenges/utils";
-import { describe, it } from "vitest";
+import type { Equal, Expect } from "@type-challenges/utils";
+import type { ChoicesOutput, ToChoices } from "src/types";
 
-import { ChoicesOutput, ToChoices } from "src/types";
+import { describe, it } from "vitest";
 
 // Note: while type tests clearly fail visible inspection, they pass from Vitest
 // standpoint so always be sure to run `tsc --noEmit` over your test files to
 // gain validation that no new type vulnerabilities have cropped up.
 
-describe("ChoiceOutput<T>", () => {
+describe("choiceOutput<T>", () => {
   it("select test", () => {
     type C1 = ToChoices<["red", "blue", "green"]>;
     type O1 = ChoicesOutput<C1, "select">;

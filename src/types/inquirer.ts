@@ -1,10 +1,10 @@
-import { EmptyObject, SimpleToken } from "inferred-types";
-import { AsyncCallback, Callback, FromRequirements } from "./utility";
-import { Question } from "./Question";
+import type { EmptyObject, SimpleToken } from "inferred-types/dist/types";
+import type { Question } from "./Question";
+import type { AsyncCallback, Callback, FromRequirements } from "./utility";
 
-export type Separator = {
+export interface Separator {
   type: "separator";
-};
+}
 
 /**
  * **DynamicQuestionProp**`<TValue, TAnswers>`
@@ -57,6 +57,6 @@ export type Prompt<TRequire extends Requirements = Requirements> =
 export type Answers<T extends Requirements = "no-requirements"> =
   FromRequirements<T>;
 
-export type Survey = {
+export interface Survey {
   questions: Question[];
-};
+}

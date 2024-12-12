@@ -1,4 +1,4 @@
-import {
+import type {
   AfterFirst,
   As,
   AsString,
@@ -6,17 +6,16 @@ import {
   ExpandDictionary,
   FilterProps,
   First,
+  HasRequiredProps,
   IsEqual,
   IsScalar,
   IsUnionArray,
   Keys,
-  RequiredProps,
   SimpleType,
   TypedFunction,
   UnionArrayToTuple,
-} from "inferred-types";
-import { Prompt, RequirementDescriptor, Requirements } from "./inquirer";
-import {
+} from "inferred-types/dist/types";
+import type {
   Choice,
   ChoiceArr,
   ChoiceDict,
@@ -25,7 +24,8 @@ import {
   Choices,
   IsChoiceDictProxy,
 } from "./Choice";
-import {
+import type { Prompt, RequirementDescriptor, Requirements } from "./inquirer";
+import type {
   QuestionsWithChoices,
   QuestionsWithMultiSelect,
   QuestionType,
@@ -43,17 +43,12 @@ export type FromRequirements<T extends Requirements> =
           }
         : never;
 
-export type HasRequiredProps<T extends Requirements> =
-  T extends RequirementDescriptor
-    ? Keys<RequiredProps<FromRequirements<T>>>["length"] extends 0
-      ? false
-      : IsEqual<
-            Keys<RequiredProps<FromRequirements<T>>>["length"],
-            number
-          > extends true
-        ? false
-        : true
-    : false;
+export type HasRequiredReqs<T extends Requirements> =
+  T extends "no-requirements"
+    ? false
+    : T extends RequirementDescriptor
+      ? HasRequiredProps<T>
+      : never;
 
 type _ObjToChoice<
   TObj extends ChoiceDict,
@@ -62,59 +57,59 @@ type _ObjToChoice<
 > = [] extends TKeys
   ? TChoices
   : _ObjToChoice<
-      TObj,
-      AfterFirst<TKeys>,
-      [
-        ...TChoices,
-        First<TKeys> extends keyof TObj
-          ? TObj[First<TKeys>] extends ChoiceDictTuple
-            ? {
+    TObj,
+    AfterFirst<TKeys>,
+    [
+      ...TChoices,
+      First<TKeys> extends keyof TObj
+        ? TObj[First<TKeys>] extends ChoiceDictTuple
+          ? {
+              type: "choice";
+              name: First<TKeys>;
+              value: TObj[First<TKeys>][0];
+              description: TObj[First<TKeys>][1];
+            } // was a ChoiceDictTuple
+          : IsChoiceDictProxy<TObj[First<TKeys>]> extends true
+            ? As<
+              FilterProps<
+                {
+                  type: "choice";
+                  name: First<TKeys>;
+                  value: As<TObj[First<TKeys>], ChoiceDictProxy>["value"];
+                  checked: As<
+                    TObj[First<TKeys>],
+                    ChoiceDictProxy
+                  >["checked"];
+                  disabled: As<
+                    TObj[First<TKeys>],
+                    ChoiceDictProxy
+                  >["disabled"];
+                  short: As<TObj[First<TKeys>], ChoiceDictProxy>["short"];
+                  key: As<TObj[First<TKeys>], ChoiceDictProxy>["key"];
+                  description: As<
+                    TObj[First<TKeys>],
+                    ChoiceDictProxy
+                  >["description"];
+                },
+                unknown,
+                "equals"
+              >,
+              Choice
+            >
+            : {
                 type: "choice";
                 name: First<TKeys>;
-                value: TObj[First<TKeys>][0];
-                description: TObj[First<TKeys>][1];
-              } // was a ChoiceDictTuple
-            : IsChoiceDictProxy<TObj[First<TKeys>]> extends true
-              ? As<
-                  FilterProps<
-                    {
-                      type: "choice";
-                      name: First<TKeys>;
-                      value: As<TObj[First<TKeys>], ChoiceDictProxy>["value"];
-                      checked: As<
-                        TObj[First<TKeys>],
-                        ChoiceDictProxy
-                      >["checked"];
-                      disabled: As<
-                        TObj[First<TKeys>],
-                        ChoiceDictProxy
-                      >["disabled"];
-                      short: As<TObj[First<TKeys>], ChoiceDictProxy>["short"];
-                      key: As<TObj[First<TKeys>], ChoiceDictProxy>["key"];
-                      description: As<
-                        TObj[First<TKeys>],
-                        ChoiceDictProxy
-                      >["description"];
-                    },
-                    unknown,
-                    "equals"
-                  >,
-                  Choice
-                >
-              : {
-                    type: "choice";
-                    name: First<TKeys>;
-                    value: TObj[First<TKeys>];
-                  } extends Choice<unknown>
+                value: TObj[First<TKeys>];
+              } extends Choice<unknown>
                 ? {
                     type: "choice";
                     name: First<TKeys>;
                     value: TObj[First<TKeys>];
                   }
                 : never
-          : never,
-      ]
-    >;
+        : never,
+    ]
+  >;
 
 type _ToChoicesArr<T extends Choices> = {
   [K in keyof T]: IsScalar<T[K]> extends true
@@ -238,15 +233,15 @@ export type QuestionReturns<
     : [] = TType extends QuestionsWithChoices ? Choices : [],
 > = TType extends QuestionsWithChoices
   ? ExpandDictionary<
-      Record<string, unknown> &
-        FromRequirements<TRequire> &
-        ChoiceReturns<TName, TType, TChoices>
-    >
+    Record<string, unknown> &
+    FromRequirements<TRequire> &
+    ChoiceReturns<TName, TType, TChoices>
+  >
   : ExpandDictionary<
-      Record<string, unknown> &
-        FromRequirements<TRequire> &
-        Record<TName, QuestionTypeLookup<TType>>
-    >;
+    Record<string, unknown> &
+    FromRequirements<TRequire> &
+    Record<TName, QuestionTypeLookup<TType>>
+  >;
 
 /**
  * type utility which determines what a Question's parameters
@@ -254,7 +249,7 @@ export type QuestionReturns<
  */
 export type QuestionParams<TReq extends Requirements> =
   TReq extends RequirementDescriptor
-    ? HasRequiredProps<TReq> extends true
+    ? HasRequiredReqs<TReq> extends true
       ? [
           answers: ExpandDictionary<
             FromRequirements<TReq> & Record<string, unknown>

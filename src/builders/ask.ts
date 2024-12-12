@@ -1,12 +1,7 @@
-import {
-  createFnWithProps,
-  isFunction,
-  isString,
+import type {
   TypedFunction,
 } from "inferred-types";
-import inquirer from "inquirer";
-import { isRequirementDescriptor } from "src/type-guards";
-import {
+import type {
   Ask,
   AskApi,
   Choice,
@@ -21,21 +16,23 @@ import {
   RequirementDescriptor,
   Requirements,
 } from "src/types/index";
+import {
+  createFnWithProps,
+  isFunction,
+  isString,
+} from "inferred-types";
+import inquirer from "inquirer";
+import { isRequirementDescriptor } from "src/type-guards";
 import { normalizeChoices } from "src/utils";
 
-const service =
-  <
-    TReq extends Requirements,
-    TType extends QuestionType,
-    TChoices extends TType extends QuestionsWithChoices
-      ? readonly Choice[]
-      : [],
-  >(
-    _req: TReq,
-    type: TType,
-    choices: TChoices,
-  ) =>
-  <
+function service<
+  TReq extends Requirements,
+  TType extends QuestionType,
+  TChoices extends TType extends QuestionsWithChoices
+    ? readonly Choice[]
+    : [],
+>(_req: TReq, type: TType, choices: TChoices) {
+  return <
     TName extends string,
     TPrompt extends Prompt<TReq>,
     TOpt extends QuestionOption<
@@ -51,7 +48,7 @@ const service =
     const fn = async <T extends QuestionParams<TReq>>(
       answers?: T | undefined,
     ) => {
-      const message = isFunction(prompt) ? prompt(answers) : prompt;
+      const message = isFunction(prompt) ? (prompt as any)(answers) : prompt;
       const config = {
         ...(options || {}),
         type,
@@ -96,6 +93,7 @@ const service =
       typeof fn
     >;
   };
+}
 
 const askApi: Ask = <TReq extends Requirements>(req: TReq) =>
   ({

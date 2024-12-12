@@ -1,6 +1,6 @@
-import { ask, survey } from "src";
-import { describe, it, expect, vi, afterEach } from "vitest";
 import inquirer from "inquirer";
+import { ask, survey } from "src";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 // Mock inquirer
 vi.mock("inquirer", () => ({

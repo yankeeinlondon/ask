@@ -1,9 +1,9 @@
-import { Equal, Expect } from "@type-challenges/utils";
-import { QuestionOption } from "src/types/options";
-import { ToChoices } from "src/types/utility";
+import type { Equal, Expect } from "@type-challenges/utils";
+import type { QuestionOption } from "src/types/options";
+import type { ToChoices } from "src/types/utility";
 import { describe, it } from "vitest";
 
-describe("Question Options", () => {
+describe("question Options", () => {
   it("select options", () => {
     type O = QuestionOption<
       "select",
@@ -35,8 +35,8 @@ describe("Question Options", () => {
           | "blue"
           | "green"
           | (<T extends { prior: "red" | "blue" | "green" }>(
-              answers: T,
-            ) => "red" | "blue" | "green" | undefined)
+            answers: T,
+          ) => "red" | "blue" | "green" | undefined)
           | undefined
         >
       >, //
@@ -72,12 +72,12 @@ describe("Question Options", () => {
           ODefault, //
           | ("red" | "blue" | "green")[]
           | (<
-              T extends {
-                prior: "red" | "blue" | "green";
-              },
-            >(
-              answers: T,
-            ) => ("red" | "blue" | "green")[] | undefined)
+            T extends {
+              prior: "red" | "blue" | "green";
+            },
+          >(
+            answers: T,
+          ) => ("red" | "blue" | "green")[] | undefined)
           | undefined
         >
       >, //

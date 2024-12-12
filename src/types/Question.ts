@@ -1,26 +1,26 @@
-import { TypedFunction } from "inferred-types";
-import { Requirements } from "./inquirer";
-import { QuestionType } from "./QuestionType";
-import { QuestionParams } from "./utility";
+import type { AsyncFunction } from "inferred-types/dist/types";
+import type { Requirements } from "./inquirer";
+import type { QuestionType } from "./QuestionType";
+import type { QuestionParams } from "./utility";
 
 /**
  * type utility which ensures a `Questions` function is correctly typed
  */
 export type QuestionFn<
-  TReq extends Requirements, //
+  TReq extends Requirements,
   TRtn,
-> = <T extends QuestionParams<TReq>>(...args: T) => Promise<TRtn>;
+> = AsyncFunction<QuestionParams<TReq>, TRtn>;
 
-export type QuestionProps<
+export interface QuestionProps<
   TName extends string,
   TType extends QuestionType,
   TPrompt extends string,
-> = {
+> {
   kind: "question";
   question: TName;
   prompt: TPrompt;
   type: TType;
-};
+}
 
 /**
  * **Question**
@@ -42,11 +42,16 @@ export type Question<
   TProp extends string = string,
   TType extends QuestionType = QuestionType,
   TPrompt extends string = string,
-  TFn extends TypedFunction = TypedFunction,
+  TWhen extends (answers: QuestionParams<any>) => boolean = (
+    answers: QuestionParams<any>,
+  ) => boolean,
+  TFn extends AsyncFunction<[Record<string, any>] | []> = AsyncFunction<
+    [Record<string, any>] | []
+  >,
 > = {
   kind: "question";
   prop: TProp;
   prompt: TPrompt;
   type: TType;
-  when: (answers: Record<string, any>) => boolean;
+  when: TWhen;
 } & TFn;

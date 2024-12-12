@@ -1,13 +1,13 @@
-import { AlphaNumericChar, SpecialChar } from "inferred-types";
-
+import type { AlphaNumericChar, SpecialChar } from "inferred-types/dist/types";
 
 /**
  * A fully qualified definition of a choice
  */
-export type Choice<T = unknown> = {
+export interface Choice<T = unknown> {
   type: "choice";
-  /** 
-   * the actual _value_ which the question will be set to if this choice is selected */
+  /**
+   * the actual _value_ which the question will be set to if this choice is selected
+   */
   value: T;
   name: string;
   description?: string;
@@ -16,12 +16,12 @@ export type Choice<T = unknown> = {
    */
   checked?: boolean;
   /**
-   * Once the prompt is done (press enter), we'll use `short` if defined to 
+   * Once the prompt is done (press enter), we'll use `short` if defined to
    * render next to the question. By default we'll use `name`.
    */
   short?: string;
   /**
-   * Disallow the option from being selected. If disabled is a string, it'll 
+   * Disallow the option from being selected. If disabled is a string, it'll
    * be used as a help tip explaining why the choice isn't available.
    */
   disabled?: boolean | string;
@@ -30,26 +30,31 @@ export type Choice<T = unknown> = {
    * used in the `expand` command to map a key value which maps to a given
    * choice / action.
    */
-  key?: `${AlphaNumericChar| SpecialChar}`;
+  key?: `${AlphaNumericChar | SpecialChar}`;
 }
 
-export type ChoiceElement = string | number | boolean | null | undefined 
-| ChoiceDictTuple
-| ChoiceDictProxy
-| Choice<unknown>;
+export type ChoiceElement =
+  | string
+  | number
+  | boolean
+  | null
+  | undefined
+  | ChoiceDictTuple
+  | ChoiceDictProxy
+  | Choice<unknown>;
 
 /**
  * An array of Choices represented in either it's full `Choice` form
  * or just the _value_ we want to represent. This type of array can be
- * converted into an array of `Choice` types by using the 
+ * converted into an array of `Choice` types by using the
  * `ToChoices` type util.
  */
 export type ChoiceArr = readonly ChoiceElement[];
 
 /**
- * when using the `ChoiceDict` structure of defining choices, the typical 
- * approach is to have the "key" be the `name` and the "value" be the 
- * `value` property 
+ * when using the `ChoiceDict` structure of defining choices, the typical
+ * approach is to have the "key" be the `name` and the "value" be the
+ * `value` property
  */
 export type ChoiceDictTuple = [value: unknown, desc: string];
 
@@ -57,15 +62,16 @@ export type ChoiceDictTuple = [value: unknown, desc: string];
  * Type util which returns `true`/`false` indicating whether `T`
  * is a `ChoiceDictTuple`
  */
-export type IsChoiceDictTuple<T> = T extends [unknown, string]
-  ? true
-  : false;
+export type IsChoiceDictTuple<T> = T extends [unknown, string] ? true : false;
 
-export type IsChoiceDictProxy<T> = T extends { value: unknown; [key: string]: unknown }
-? "name" extends keyof T
-  ? false
-  : true
-: false;
+export type IsChoiceDictProxy<T> = T extends {
+  value: unknown;
+  [key: string]: unknown;
+}
+  ? "name" extends keyof T
+    ? false
+    : true
+  : false;
 
 /**
  * A `ChoiceDict` represents a set of `Choices` as a dictionary where
@@ -73,7 +79,6 @@ export type IsChoiceDictProxy<T> = T extends { value: unknown; [key: string]: un
  * the individual choices.
  */
 export type ChoiceDict = Record<string, ChoiceElement>;
-
 
 /**
  * When parsing a `ChoiceDict` key/value passed in, if the value looks
@@ -84,14 +89,10 @@ export type ChoiceDict = Record<string, ChoiceElement>;
  */
 export type ChoiceDictProxy = Omit<Choice, "type" | "name">;
 
-
 /**
  * A set of choices defined by either a `ChoiceArr` or `ChoiceDict`
  */
-export type Choices = 
-| ChoiceArr
-| ChoiceDict;
-
+export type Choices = ChoiceArr | ChoiceDict;
 
 // N extends Narrowable,
 //   K extends PropertyKey,

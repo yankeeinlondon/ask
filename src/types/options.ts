@@ -1,24 +1,24 @@
-import { DoesExtend, If } from "inferred-types";
-import { Choice, Choices } from "./Choice";
-import {
+import type { DoesExtend, If } from "inferred-types/dist/types";
+import type { Choice, Choices } from "./Choice";
+import type {
   Answers,
   DynamicQuestionProp,
   RequirementDescriptor,
   Requirements,
   Separator,
 } from "./inquirer";
-import { QuestionType } from "./QuestionType";
-import { ChoicesOutput } from "./utility";
+import type { QuestionType } from "./QuestionType";
+import type { ChoicesOutput } from "./utility";
 
-export type BaseOptions<TBaseType, TRequire extends Requirements> = {
+export interface BaseOptions<TBaseType, TRequire extends Requirements> {
   /** the default value to start with */
   default?:
     | TBaseType
     | If<
-        DoesExtend<TRequire, RequirementDescriptor>, //
-        <T extends Answers<TRequire>>(answers: T) => TBaseType | undefined,
-        never
-      >;
+      DoesExtend<TRequire, RequirementDescriptor>, //
+      <T extends Answers<TRequire>>(answers: T) => TBaseType | undefined,
+      never
+    >;
   /** boolean flag indicating if a value is _required_ from this question */
   required?: boolean;
 
@@ -40,13 +40,13 @@ export type BaseOptions<TBaseType, TRequire extends Requirements> = {
    * @param answers
    * The answers provided by the user.
    */
-  filter?(input: TBaseType, answers: Answers<TRequire>): TBaseType;
+  filter?: (input: TBaseType, answers: Answers<TRequire>) => TBaseType;
 
   /**
    * A callback which determines if the question should be asked.
    */
   when?: DynamicQuestionProp<boolean, Answers<TRequire>>;
-};
+}
 
 /** options for a text input question */
 export type InputOptions<TRequire extends Requirements> = BaseOptions<
@@ -58,19 +58,19 @@ export type InputOptions<TRequire extends Requirements> = BaseOptions<
    * is completed, isFinal will be true. This function is purely visual,
    * modify the answer in your code if needed.
    */
-  transformer?(
+  transformer?: (
     input: string,
     flags?: {
       isFinal?: boolean | undefined;
     },
-  ): string;
+  ) => string;
 
   /**
    * On submit, validate the filtered answered content. When returning a string,
    * it'll be used as the error message displayed to the user. Note: returning
    * a rejected promise, we'll assume a code error happened and crash.
    */
-  validate?(input: string): boolean | string | Promise<string | boolean>;
+  validate?: (input: string) => boolean | string | Promise<string | boolean>;
 
   theme?: {
     prefix: string;
@@ -116,7 +116,7 @@ export type ConfirmOptions<TRequire extends Requirements> = BaseOptions<
   /**
    * Transform the prompt printed message to a custom string
    */
-  transformer?(val: boolean): string;
+  transformer?: (val: boolean) => string;
 
   /** Customize look of the prompt.  */
   theme?: {
@@ -140,7 +140,7 @@ export type SearchOptions<TRequire extends Requirements> = BaseOptions<
   /**
    * A function which determines the _choices_ relevant to the search term.
    */
-  source(term: string | void): Promise<Choice[]>;
+  source: (term: string | void) => Promise<Choice[]>;
   /**
    * By default, lists of choice longer than 7 will be paginated.
    * Use this option to control how many choices will appear on the screen
@@ -152,7 +152,7 @@ export type SearchOptions<TRequire extends Requirements> = BaseOptions<
    * as the error message displayed to the user. Note: returning a rejected
    * promise, we'll assume a code error happened and crash.
    */
-  validate?(val: string): boolean | string | Promise<string | boolean>;
+  validate?: (val: string) => boolean | string | Promise<string | boolean>;
 
   /** Customize look of the prompt. */
   theme?: {
@@ -282,7 +282,7 @@ export type EditorOptions<TReq extends Requirements> = BaseOptions<
    * as the error message displayed to the user. Note: returning a rejected
    * promise, we'll assume a code error happened and crash.
    */
-  validate?(val: string): boolean | string | Promise<string | boolean>;
+  validate?: (val: string) => boolean | string | Promise<string | boolean>;
   /**
    * The file extension of the file being edited. Adding this will add color
    * highlighting to the file content in most editors.
@@ -360,7 +360,7 @@ export type CheckboxOptions<
    * used as the error message displayed to the user. Note: returning a
    * rejected promise, we'll assume a code error happened and crash.
    */
-  validate?(choices: Choice[]): Promise<boolean | string>;
+  validate?: (choices: Choice[]) => Promise<boolean | string>;
 
   theme?: {
     prefix: string;

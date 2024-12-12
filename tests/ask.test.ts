@@ -1,8 +1,8 @@
-import { Equal, Expect, ExpectTrue } from "@type-challenges/utils";
+import type { Equal, Expect, ExpectTrue } from "@type-challenges/utils";
+import type { DoesExtend } from "inferred-types";
+import type { Question } from "src/types";
+import { ask } from "src";
 import { describe, expect, it } from "vitest";
-import { ask, survey } from "src";
-import { DoesExtend } from "inferred-types";
-import { Question } from "src/types";
 
 // Note: while type tests clearly fail visible inspection, they pass from Vitest
 // standpoint so always be sure to run `tsc --noEmit` over your test files to
@@ -41,7 +41,6 @@ describe("ask API", () => {
     const name = ask
       .withRequirements({ title: "string(Mr.,Mrs.,Ms.)" })
       .input("name", "What is your name?");
-    survey;
 
     expect(typeof name).toBe("function");
     expect(name.prop).toBe("name");
@@ -72,57 +71,24 @@ describe("ask API", () => {
   });
 
   it("select question, no requirements", () => {
-    const question = ask.select("color", "What is your favorite color?", [
+    const _question = ask.select("color", "What is your favorite color?", [
       "red",
       "blue",
       "green",
     ]);
 
-    type Param = Parameters<typeof question>;
-    type Return = Awaited<ReturnType<typeof question>>;
+    type Param = Parameters<typeof _question>;
+    type Return = Awaited<ReturnType<typeof _question>>;
 
     // @ts-ignore
     type cases = [
-      ExpectTrue<DoesExtend<typeof question, Question>>,
+      ExpectTrue<DoesExtend<typeof _question, Question>>,
 
-      Expect<Equal<(typeof question)["kind"], "question">>,
-      Expect<Equal<(typeof question)["prop"], "color">>,
-      Expect<Equal<(typeof question)["type"], "select">>,
+      Expect<Equal<(typeof _question)["kind"], "question">>,
+      Expect<Equal<(typeof _question)["prop"], "color">>,
+      Expect<Equal<(typeof _question)["type"], "select">>,
       Expect<
-        Equal<(typeof question)["prompt"], "What is your favorite color?">
-      >,
-
-      Expect<
-        Equal<Param, [] | [answers?: Record<string, unknown> | undefined]>
-      >,
-      Expect<
-        Equal<
-          Return,
-          { color: "red" | "green" | "blue"; [key: string]: unknown }
-        >
-      >,
-    ];
-  });
-
-  it("select question, no requirements", () => {
-    const question = ask.select("color", "What is your favorite color?", [
-      "red",
-      "blue",
-      "green",
-    ]);
-
-    type Param = Parameters<typeof question>;
-    type Return = Awaited<ReturnType<typeof question>>;
-
-    // @ts-ignore
-    type cases = [
-      ExpectTrue<DoesExtend<typeof question, Question>>,
-
-      Expect<Equal<(typeof question)["kind"], "question">>,
-      Expect<Equal<(typeof question)["prop"], "color">>,
-      Expect<Equal<(typeof question)["type"], "select">>,
-      Expect<
-        Equal<(typeof question)["prompt"], "What is your favorite color?">
+        Equal<(typeof _question)["prompt"], "What is your favorite color?">
       >,
 
       Expect<
@@ -138,25 +104,25 @@ describe("ask API", () => {
   });
 
   it("checkbox question, no requirements", () => {
-    const question = ask.checkbox(
+    const _question = ask.checkbox(
       "color",
       "What is your favorite color?",
       ["red", "blue", "green"],
       { default: ["red", "blue"] },
     );
 
-    type Param = Parameters<typeof question>;
-    type Return = Awaited<ReturnType<typeof question>>;
+    type Param = Parameters<typeof _question>;
+    type Return = Awaited<ReturnType<typeof _question>>;
 
     // @ts-ignore
     type cases = [
-      ExpectTrue<DoesExtend<typeof question, Question>>,
+      ExpectTrue<DoesExtend<typeof _question, Question>>,
 
-      Expect<Equal<(typeof question)["kind"], "question">>,
-      Expect<Equal<(typeof question)["prop"], "color">>,
-      Expect<Equal<(typeof question)["type"], "checkbox">>,
+      Expect<Equal<(typeof _question)["kind"], "question">>,
+      Expect<Equal<(typeof _question)["prop"], "color">>,
+      Expect<Equal<(typeof _question)["type"], "checkbox">>,
       Expect<
-        Equal<(typeof question)["prompt"], "What is your favorite color?">
+        Equal<(typeof _question)["prompt"], "What is your favorite color?">
       >,
 
       Expect<

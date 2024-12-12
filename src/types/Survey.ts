@@ -1,5 +1,5 @@
-import { Question } from "./Question";
-import { ExpandDictionary } from "inferred-types";
+import type { EmptyObject, ExpandDictionary } from "inferred-types";
+import type { Question } from "./Question";
 
 export type SurveyStep = Question<string, any, string, any>;
 
@@ -48,12 +48,12 @@ type ValidateRequirementsImpl<
 export type ValidateRequirements<T extends readonly SurveyStep[]> =
   ValidateRequirementsImpl<StepAnswers<T>[], StepRequirements<T>[]>;
 
-export type ConfiguredSurvey<T extends readonly SurveyStep[]> = {
+export interface ConfiguredSurvey<T extends readonly SurveyStep[]> {
   start: <InitialState extends Record<string, unknown> | undefined = undefined>(
     initialState?: InitialState,
   ) => Promise<
     ExpandDictionary<
-      InferAnswers<T> & (InitialState extends undefined ? {} : InitialState)
+      InferAnswers<T> & (InitialState extends undefined ? EmptyObject : InitialState)
     >
   >;
-};
+}

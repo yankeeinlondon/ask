@@ -1,13 +1,13 @@
-import { Expect, ExpectTrue } from "@type-challenges/utils";
-import { HasSameValues } from "inferred-types";
-import { ToChoices } from "src/types";
+import type { Expect, ExpectTrue } from "@type-challenges/utils";
+import type { HasSameValues } from "inferred-types/dist/types";
+import type { ToChoices } from "src/types";
 import { describe, it } from "vitest";
 
 // Note: while type tests clearly fail visible inspection, they pass from Vitest
 // standpoint so always be sure to run `tsc --noEmit` over your test files to
 // gain validation that no new type vulnerabilities have cropped up.
 
-describe("ToChoices<T>", () => {
+describe("toChoices<T>", () => {
   it("array of scalars", () => {
     type FooBar = ToChoices<["foo", "bar"]>;
 

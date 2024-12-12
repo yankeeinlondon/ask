@@ -1,9 +1,8 @@
 import { ask } from "src/index";
 
-
 const question = ask.checkbox(
-  "apparel", 
-  "What type of clothes are you interested in?", 
+  "apparel",
+  "What type of clothes are you interested in?",
   {
     Hats: "hats",
     Shoes: "shoes",
@@ -11,12 +10,9 @@ const question = ask.checkbox(
     Shirts: "shirts",
     Sweaters: "sweaters",
   },
-  {default: ["shoes","hats"]}
+  { default: ["shoes", "hats"] },
 );
-
 
 const answer = await question();
 
 console.log(answer);
-
-

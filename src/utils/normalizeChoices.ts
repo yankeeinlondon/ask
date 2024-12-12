@@ -1,5 +1,8 @@
-import {
+import type {
   As,
+} from "inferred-types";
+import type { Choice, ChoiceDict, ChoiceElement, ToChoices } from "src/types";
+import {
   isArray,
   isNumber,
   isObject,
@@ -7,18 +10,17 @@ import {
   Never,
 } from "inferred-types";
 import { isChoiceDictProxy } from "src/type-guards/isChoiceDIctProxy";
-import { Choice, ChoiceDict, ChoiceElement, ToChoices } from "src/types";
 
-const isChoice = (val: unknown): val is Choice => {
+function isChoice(val: unknown): val is Choice {
   return isObject(val) && "value" in val;
-};
+}
 
-const isChoiceDict = (val: unknown): val is ChoiceDict => {
+function isChoiceDict(val: unknown): val is ChoiceDict {
   return isObject(val);
-};
+}
 
-const fromChoiceDict = (v: ChoiceDict) => {
-  return Object.keys(v).map((key) =>
+function fromChoiceDict(v: ChoiceDict) {
+  return Object.keys(v).map(key =>
     isChoiceDictProxy(v[key])
       ? {
           type: "choice",
@@ -31,7 +33,7 @@ const fromChoiceDict = (v: ChoiceDict) => {
           value: v[key],
         },
   ) as Choice[];
-};
+}
 
 /**
  * converts all the representations of choices
@@ -40,17 +42,14 @@ const fromChoiceDict = (v: ChoiceDict) => {
  * the `default` property can be used to indicate which
  * choices are selected initially.
  */
-export const normalizeChoices = <
+export function normalizeChoices<
   TChoice extends readonly N[] | Record<K, N>,
   K extends string,
   N extends ChoiceElement,
   TChecked extends unknown[],
->(
-  choices: TChoice,
-  checked?: TChecked,
-) => {
+>(choices: TChoice, checked?: TChecked) {
   const result = (isArray(choices)
-    ? choices.flatMap((i) =>
+    ? choices.flatMap(i =>
         isString(i) || isNumber(i)
           ? ({ type: "choice", name: String(i), value: i } as Choice)
           : isChoice(i)
@@ -64,8 +63,8 @@ export const normalizeChoices = <
       : Never) as unknown as any[];
 
   return (checked
-    ? result.map((i) =>
+    ? result.map(i =>
         checked.includes(i.value) ? { ...i, checked: true } : i,
       )
     : result) as unknown as As<ToChoices<TChoice>, readonly Choice[]>;
-};
+}

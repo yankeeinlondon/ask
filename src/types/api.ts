@@ -1,9 +1,14 @@
-import { As, Dictionary, ExpandDictionary, Intersect } from "inferred-types";
-import { Choice, ChoiceElement, Choices } from "./Choice";
-import { RequirementDescriptor, Requirements } from "./inquirer";
-import { QuestionOption } from "./options";
-import { Question, QuestionFn } from "./Question";
-import { FromRequirements, QuestionReturns, ToChoices } from "./utility";
+import type {
+  As,
+  Dictionary,
+  ExpandDictionary,
+  Intersect,
+} from "inferred-types/dist/types";
+import type { Choice, ChoiceElement, Choices } from "./Choice";
+import type { RequirementDescriptor, Requirements } from "./inquirer";
+import type { QuestionOption } from "./options";
+import type { Question, QuestionFn } from "./Question";
+import type { FromRequirements, QuestionReturns, ToChoices } from "./utility";
 
 /**
  * **Ask**
@@ -16,7 +21,7 @@ export type Ask = <TReq extends Requirements>(req: TReq) => AskApi<TReq>;
  * API surface for starting to ask a question where first choice
  * is what _type_ of question you're asking.
  */
-export type AskApi<TReq extends Requirements> = {
+export interface AskApi<TReq extends Requirements> {
   /**
    * **withRequirements**
    *
@@ -45,7 +50,7 @@ export type AskApi<TReq extends Requirements> = {
   /**
    * configure a question which receives a textual input from the user
    */
-  input<
+  input: <
     TName extends string,
     TPrompt extends string,
     TOpt extends QuestionOption<"input", TReq>,
@@ -53,7 +58,7 @@ export type AskApi<TReq extends Requirements> = {
     name: TName,
     prompt: TPrompt,
     opt?: TOpt,
-  ): Question<
+  ) => Question<
     TName,
     "input",
     TPrompt,
@@ -63,7 +68,7 @@ export type AskApi<TReq extends Requirements> = {
   /**
    * configure a question which receives a numeric value from the user
    */
-  number<
+  number: <
     TName extends string,
     TPrompt extends string,
     TOpt extends QuestionOption<"number", TReq>,
@@ -71,7 +76,7 @@ export type AskApi<TReq extends Requirements> = {
     name: TName,
     prompt: TPrompt,
     opt?: TOpt,
-  ): Question<
+  ) => Question<
     TName,
     "number",
     TPrompt,
@@ -86,7 +91,7 @@ export type AskApi<TReq extends Requirements> = {
    * By default, the "Y" answer if _preferred_ (aka, defaulted to) but you can
    * change `default` to false if you would like the reverse behavior.
    */
-  confirm<
+  confirm: <
     TName extends string,
     TPrompt extends string,
     TOpt extends QuestionOption<"confirm", TReq>,
@@ -94,7 +99,7 @@ export type AskApi<TReq extends Requirements> = {
     name: TName,
     prompt: TPrompt,
     opt?: TOpt,
-  ): Question<
+  ) => Question<
     TName,
     "confirm",
     TPrompt,
@@ -104,7 +109,7 @@ export type AskApi<TReq extends Requirements> = {
   /**
    * let the user choose one item from the "choices"
    */
-  select<
+  select: <
     TName extends string,
     TPrompt extends string,
     TChoices extends readonly N[] | Record<K, N>,
@@ -120,13 +125,13 @@ export type AskApi<TReq extends Requirements> = {
     prompt: TPrompt,
     choices: TChoices,
     opt?: TOpt,
-  ): Question<
+  ) => Question<
     TName,
     "select",
     TPrompt,
     QuestionFn<TReq, QuestionReturns<TName, "select", TReq, TChoices>>
   >;
-  rawlist<
+  rawlist: <
     TName extends string,
     TPrompt extends string,
     TChoices extends readonly N[] | Record<K, N>,
@@ -142,7 +147,7 @@ export type AskApi<TReq extends Requirements> = {
     prompt: string,
     choices: Choices,
     opt?: TOpt,
-  ): Question<
+  ) => Question<
     TName,
     "rawlist",
     TPrompt,
@@ -152,7 +157,7 @@ export type AskApi<TReq extends Requirements> = {
   /**
    * Let user respond with shortcut keys on how they'd like to take action.
    */
-  expand<
+  expand: <
     TName extends string,
     TPrompt extends string,
     TChoices extends readonly N[] | Record<K, N>,
@@ -168,7 +173,7 @@ export type AskApi<TReq extends Requirements> = {
     prompt: string,
     choices: TChoices,
     opt?: TOpt,
-  ): Question<
+  ) => Question<
     TName,
     "expand",
     TPrompt,
@@ -180,7 +185,7 @@ export type AskApi<TReq extends Requirements> = {
    *
    * Let the user choose as many "choices" as they would like.
    */
-  checkbox<
+  checkbox: <
     TName extends string,
     TPrompt extends string,
     TChoices extends readonly N[] | Record<K, N>,
@@ -196,7 +201,7 @@ export type AskApi<TReq extends Requirements> = {
     prompt: TPrompt,
     choices: TChoices,
     opt?: TOpt,
-  ): Question<
+  ) => Question<
     TName,
     "checkbox",
     TPrompt,
@@ -206,7 +211,7 @@ export type AskApi<TReq extends Requirements> = {
    * as for a password or secret which will result in masked values when
    * typed on the screen.
    */
-  password<
+  password: <
     TName extends string,
     TPrompt extends string,
     TOpt extends QuestionOption<"password", TReq>,
@@ -214,7 +219,7 @@ export type AskApi<TReq extends Requirements> = {
     name: TName,
     prompt: string,
     opt?: TOpt,
-  ): Question<
+  ) => Question<
     TName,
     "password",
     TPrompt,
@@ -224,7 +229,7 @@ export type AskApi<TReq extends Requirements> = {
   /**
    * ask a question which will be answered in the user's editor of choice
    */
-  editor<
+  editor: <
     TName extends string,
     TPrompt extends string,
     TRequire extends Requirements,
@@ -233,13 +238,13 @@ export type AskApi<TReq extends Requirements> = {
     name: TName,
     prompt: string,
     opt?: TOpt,
-  ): Question<
+  ) => Question<
     TName,
     "editor",
     TPrompt,
     QuestionFn<TReq, QuestionReturns<TName, "editor", TReq>>
   >;
-};
+}
 
 export type SurveyCallback = <
   TProp extends string,

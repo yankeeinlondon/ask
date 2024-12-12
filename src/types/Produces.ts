@@ -1,6 +1,6 @@
-import { QuestionsWithMultiSelect, QuestionType } from "./QuestionType";
-import { Choice, Choices } from "./Choice";
-import { ToChoices } from "./utility";
+import type { Choice, Choices } from "./Choice";
+import type { QuestionsWithMultiSelect, QuestionType } from "./QuestionType";
+import type { ToChoices } from "./utility";
 
 type Process<T extends readonly Choice[]> = {
   [K in keyof T]: T[K]["value"];

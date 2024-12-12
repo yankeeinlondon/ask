@@ -1,11 +1,10 @@
 import { ask } from "src/index";
 
-
 const question = ask.number("age", "How old are you?", {
-  min: 1, 
+  min: 1,
   max: 150,
   default: 42,
-  required: true
+  required: true,
 });
 
 const answer = await question();

@@ -55,3 +55,7 @@ frontend/.vite-ssg-dist/**
 .tsbuildinfo
 trace/*
 .trace/*
+tsup.config.mjs
+tsup.config.js
+.ts-*
+

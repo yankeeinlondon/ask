@@ -1,5 +1,5 @@
-import { InferAnswers, SurveyStep, ConfiguredSurvey } from "src/types/Survey";
-import { ExpandDictionary } from "inferred-types";
+import type { EmptyObject, ExpandDictionary } from "inferred-types";
+import type { ConfiguredSurvey, InferAnswers, SurveyStep } from "src/types/Survey";
 
 export function survey<T extends readonly SurveyStep[]>(
   ...steps: T
@@ -10,10 +10,10 @@ export function survey<T extends readonly SurveyStep[]>(
     >(
       initialState?: InitialState,
     ): Promise<
-      ExpandDictionary<
-        InferAnswers<T> & (InitialState extends undefined ? {} : InitialState)
-      >
-    > {
+        ExpandDictionary<
+        InferAnswers<T> & (InitialState extends undefined ? EmptyObject : InitialState)
+        >
+      > {
       let answers: Record<string, unknown> = initialState || {};
 
       for (const step of steps) {
@@ -24,7 +24,7 @@ export function survey<T extends readonly SurveyStep[]>(
       }
 
       return answers as ExpandDictionary<
-        InferAnswers<T> & (InitialState extends undefined ? {} : InitialState)
+        InferAnswers<T> & (InitialState extends undefined ? EmptyObject : InitialState)
       >;
     },
   };
