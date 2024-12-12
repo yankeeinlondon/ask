@@ -1,4 +1,4 @@
-import type { AlphaNumericChar, SpecialChar } from "inferred-types/dist/types";
+import type { AlphaNumericChar, SpecialChar } from "inferred-types";
 
 /**
  * A fully qualified definition of a choice

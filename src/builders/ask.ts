@@ -104,7 +104,7 @@ const askApi: Ask = <TReq extends Requirements>(req: TReq) =>
       return service(req, "number", [])(name, prompt, opt);
     },
     password(name, prompt, opt) {
-      return service(req, "password", [])(name, prompt, opt as any);
+      return service(req, "password", [])(name, prompt, opt );
     },
 
     confirm(name, prompt, opt) {
@@ -129,7 +129,7 @@ const askApi: Ask = <TReq extends Requirements>(req: TReq) =>
       return service(req, "rawlist", normalizeChoices(choices))(
         name,
         prompt,
-        opt as any,
+        opt,
       );
     },
     expand(name, prompt, choices, opt) {
@@ -141,7 +141,7 @@ const askApi: Ask = <TReq extends Requirements>(req: TReq) =>
     },
 
     editor(name, prompt, opt) {
-      return service(req, "editor", [])(name, prompt, opt as any);
+      return service(req, "editor", [])(name, prompt, opt);
     },
 
     withRequirements: (isRequirementDescriptor(req)

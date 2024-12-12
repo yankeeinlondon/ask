@@ -1,4 +1,4 @@
-import type { EmptyObject, SimpleToken } from "inferred-types/dist/types";
+import type { EmptyObject, SimpleToken } from "inferred-types";
 import type { Question } from "./Question";
 import type { AsyncCallback, Callback, FromRequirements } from "./utility";
 

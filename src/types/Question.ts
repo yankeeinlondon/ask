@@ -1,4 +1,4 @@
-import type { AsyncFunction } from "inferred-types/dist/types";
+import type { AsyncFunction } from "inferred-types";
 import type { Requirements } from "./inquirer";
 import type { QuestionType } from "./QuestionType";
 import type { QuestionParams } from "./utility";

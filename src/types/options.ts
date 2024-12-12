@@ -1,4 +1,4 @@
-import type { DoesExtend, If } from "inferred-types/dist/types";
+import type { DoesExtend, If } from "inferred-types";
 import type { Choice, Choices } from "./Choice";
 import type {
   Answers,

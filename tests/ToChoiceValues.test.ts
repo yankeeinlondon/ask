@@ -1,5 +1,5 @@
 import type { Expect } from "@type-challenges/utils";
-import type { HasSameValues } from "inferred-types/dist/types";
+import type { HasSameValues } from "inferred-types";
 import type { ToChoiceValues } from "src/types";
 import { describe, it } from "vitest";
 

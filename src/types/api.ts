@@ -3,7 +3,7 @@ import type {
   Dictionary,
   ExpandDictionary,
   Intersect,
-} from "inferred-types/dist/types";
+} from "inferred-types";
 import type { Choice, ChoiceElement, Choices } from "./Choice";
 import type { RequirementDescriptor, Requirements } from "./inquirer";
 import type { QuestionOption } from "./options";
