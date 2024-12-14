@@ -1,9 +1,7 @@
-import type {
-  As,
-} from "inferred-types";
-import type { Choice, ChoiceDict, ChoiceElement, ToChoices } from "src/types";
+import type { Choice, ChoiceDict, ChoiceElement, Choices, Shazam } from "src/types";
 import {
   isArray,
+  isFunction,
   isNumber,
   isObject,
   isString,
@@ -43,28 +41,32 @@ function fromChoiceDict(v: ChoiceDict) {
  * choices are selected initially.
  */
 export function normalizeChoices<
-  TChoice extends readonly N[] | Record<K, N>,
+  TChoices extends Choices<K, N>,
+  TChecked extends unknown[],
   K extends string,
   N extends ChoiceElement,
-  TChecked extends unknown[],
->(choices: TChoice, checked?: TChecked) {
-  const result = (isArray(choices)
-    ? choices.flatMap(i =>
-        isString(i) || isNumber(i)
-          ? ({ type: "choice", name: String(i), value: i } as Choice)
-          : isChoice(i)
-            ? i
-            : isChoiceDict(i)
-              ? fromChoiceDict(i)
-              : Never,
-      )
-    : isChoiceDict(choices)
-      ? fromChoiceDict(choices)
-      : Never) as unknown as any[];
+>(choices: TChoices, checked?: TChecked) {
+  const result = (
+    isArray(choices)
+      ? choices.flatMap(i =>
+          isString(i) || isNumber(i)
+            ? ({ type: "choice", name: String(i), value: i } as Choice)
+            : isChoice(i)
+              ? i
+              : isChoiceDict(i)
+                ? fromChoiceDict(i)
+                : isFunction(i) ? i : Never,
+        )
+      : isChoiceDict(choices)
+        ? fromChoiceDict(choices)
+        : Never
+  ) as unknown as Choice[];
 
-  return (checked
-    ? result.map(i =>
-        checked.includes(i.value) ? { ...i, checked: true } : i,
-      )
-    : result) as unknown as As<ToChoices<TChoice>, readonly Choice[]>;
+  return (
+    checked
+      ? result.map(i =>
+          checked.includes(i?.value) ? { ...i, checked: true } : i,
+        )
+      : result
+  ) as unknown as Shazam<TChoices>;
 }

@@ -1,5 +1,5 @@
 import type { Equal, Expect } from "@type-challenges/utils";
-import type { QuestionReturns } from "src/types";
+import type { QuestionReturns, ToChoices } from "src/types";
 import { ask } from "src";
 import { describe, it } from "vitest";
 
@@ -9,13 +9,20 @@ import { describe, it } from "vitest";
 
 describe("questionReturns<Name,Type,Require,[Choices]>", () => {
   it("using text input", () => {
-    type Name = QuestionReturns<"name", "input", "no-requirements">;
+    type Name = QuestionReturns<
+      "name",
+      "input",
+      "no-requirements",
+      null
+    >;
+
     type NameWithTitle = QuestionReturns<
       "name",
       "input",
       {
         title: "string(Mr,Mrs,Ms)";
-      }
+      },
+      null
     >;
 
     // @ts-ignore
@@ -33,17 +40,17 @@ describe("questionReturns<Name,Type,Require,[Choices]>", () => {
       "color",
       "select",
       "no-requirements",
-      ["red", "blue", "green"]
+      ToChoices<["red", "blue", "green"]>
     >;
     type Color2 = QuestionReturns<
       "color",
       "select",
       "no-requirements",
-      {
+      ToChoices<{
         Red: "red";
         Green: "green";
         Blue: "blue";
-      }
+      }>
     >;
 
     const _color = ask.select("color", "What's your favorite color?", [
@@ -109,7 +116,7 @@ describe("questionReturns<Name,Type,Require,[Choices]>", () => {
       "color",
       "checkbox",
       "no-requirements",
-      ["red", "blue", "green"]
+      ToChoices<["red", "blue", "green"]>
     >;
 
     // @ts-ignore

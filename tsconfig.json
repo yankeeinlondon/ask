@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "incremental": true,
+    "tsBuildInfoFile": ".tsbuildinfo",
     "target": "ES2022",
     "baseUrl": ".",
     "module": "ESNext",

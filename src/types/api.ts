@@ -1,19 +1,25 @@
 import type {
-  As,
   Dictionary,
   ExpandDictionary,
   Intersect,
 } from "inferred-types";
+import type { AsWhen } from "./AsWhen";
 import type { Choice, ChoiceElement, Choices } from "./Choice";
+import type { FromRequirements } from "./FromRequirements";
 import type { RequirementDescriptor, Requirements } from "./inquirer";
-import type { QuestionOption } from "./options";
-import type { Question, QuestionFn } from "./Question";
-import type { FromRequirements, QuestionReturns, ToChoices } from "./utility";
+import type {
+  ConfirmOptions,
+  ExpandOptions,
+  QuestionOption,
+} from "./options";
+import type { Question } from "./Question";
+import type { ToChoices } from "./ToChoices";
+
+export type Shazam<T extends Choices> = ToChoices<T> extends readonly Choice[]
+  ? ToChoices<T> : never;
 
 /**
  * **Ask**
- *
- *
  */
 export type Ask = <TReq extends Requirements>(req: TReq) => AskApi<TReq>;
 
@@ -53,7 +59,7 @@ export interface AskApi<TReq extends Requirements> {
   input: <
     TName extends string,
     TPrompt extends string,
-    TOpt extends QuestionOption<"input", TReq>,
+    TOpt extends QuestionOption<"input", TReq> | undefined,
   >(
     name: TName,
     prompt: TPrompt,
@@ -62,7 +68,9 @@ export interface AskApi<TReq extends Requirements> {
     TName,
     "input",
     TPrompt,
-    QuestionFn<TReq, QuestionReturns<TName, "input", TReq>>
+    TReq,
+    null,
+    AsWhen<"input", TReq>
   >;
 
   /**
@@ -71,7 +79,7 @@ export interface AskApi<TReq extends Requirements> {
   number: <
     TName extends string,
     TPrompt extends string,
-    TOpt extends QuestionOption<"number", TReq>,
+    TOpt extends QuestionOption<"number", TReq> | undefined,
   >(
     name: TName,
     prompt: TPrompt,
@@ -80,8 +88,11 @@ export interface AskApi<TReq extends Requirements> {
     TName,
     "number",
     TPrompt,
-    QuestionFn<TReq, QuestionReturns<TName, "number", TReq>>
+    TReq,
+    null,
+    AsWhen<"number", TReq>
   >;
+
   /**
    * **confirm**
    *
@@ -94,7 +105,7 @@ export interface AskApi<TReq extends Requirements> {
   confirm: <
     TName extends string,
     TPrompt extends string,
-    TOpt extends QuestionOption<"confirm", TReq>,
+    TOpt extends ConfirmOptions<TReq> | undefined,
   >(
     name: TName,
     prompt: TPrompt,
@@ -103,7 +114,9 @@ export interface AskApi<TReq extends Requirements> {
     TName,
     "confirm",
     TPrompt,
-    QuestionFn<TReq, QuestionReturns<TName, "confirm", TReq>>
+    TReq,
+    null,
+    AsWhen<"confirm", TReq>
   >;
 
   /**
@@ -112,14 +125,10 @@ export interface AskApi<TReq extends Requirements> {
   select: <
     TName extends string,
     TPrompt extends string,
-    TChoices extends readonly N[] | Record<K, N>,
+    TChoices extends Choices<K, N>,
     K extends string,
     N extends ChoiceElement,
-    TOpt extends QuestionOption<
-      "select",
-      TReq,
-      As<ToChoices<TChoices>, readonly Choice[]>
-    >,
+    TOpt extends QuestionOption<"select", TReq, Shazam<TChoices>> | undefined,
   >(
     name: TName,
     prompt: TPrompt,
@@ -129,29 +138,29 @@ export interface AskApi<TReq extends Requirements> {
     TName,
     "select",
     TPrompt,
-    QuestionFn<TReq, QuestionReturns<TName, "select", TReq, TChoices>>
+    TReq,
+    Shazam<TChoices>,
+    AsWhen<"select", TReq, TChoices>
   >;
   rawlist: <
     TName extends string,
     TPrompt extends string,
-    TChoices extends readonly N[] | Record<K, N>,
+    TChoices extends Choices<K, N>,
     K extends string,
     N extends ChoiceElement,
-    TOpt extends QuestionOption<
-      "rawlist",
-      TReq,
-      As<ToChoices<TChoices>, readonly Choice[]>
-    >,
+    TOpt extends QuestionOption<"rawlist", TReq, Shazam<TChoices>> | undefined,
   >(
     name: TName,
-    prompt: string,
-    choices: Choices,
+    prompt: TPrompt,
+    choices: TChoices,
     opt?: TOpt,
   ) => Question<
     TName,
     "rawlist",
     TPrompt,
-    QuestionFn<TReq, QuestionReturns<TName, "rawlist", TReq, TChoices>>
+    TReq,
+    Shazam<TChoices>,
+    AsWhen<"rawlist", TReq, TChoices>
   >;
 
   /**
@@ -160,14 +169,10 @@ export interface AskApi<TReq extends Requirements> {
   expand: <
     TName extends string,
     TPrompt extends string,
-    TChoices extends readonly N[] | Record<K, N>,
+    TChoices extends Choices<K, N>,
     K extends string,
     N extends ChoiceElement,
-    TOpt extends QuestionOption<
-      "expand",
-      TReq,
-      As<ToChoices<TChoices>, readonly Choice[]>
-    >,
+    TOpt extends ExpandOptions<TReq, Shazam<TChoices>> | undefined,
   >(
     name: TName,
     prompt: string,
@@ -177,7 +182,9 @@ export interface AskApi<TReq extends Requirements> {
     TName,
     "expand",
     TPrompt,
-    QuestionFn<TReq, QuestionReturns<TName, "expand", TReq, TChoices>>
+    TReq,
+    Shazam<TChoices>,
+    AsWhen<"expand", TReq, TChoices>
   >;
 
   /**
@@ -188,14 +195,10 @@ export interface AskApi<TReq extends Requirements> {
   checkbox: <
     TName extends string,
     TPrompt extends string,
-    TChoices extends readonly N[] | Record<K, N>,
+    TChoices extends Choices<K, N>,
     K extends string,
     N extends ChoiceElement,
-    TOpt extends QuestionOption<
-      "checkbox",
-      TReq,
-      As<ToChoices<TChoices>, readonly Choice[]>
-    >,
+    TOpt extends QuestionOption<"checkbox", TReq, Shazam<TChoices>> | undefined,
   >(
     name: TName,
     prompt: TPrompt,
@@ -205,10 +208,12 @@ export interface AskApi<TReq extends Requirements> {
     TName,
     "checkbox",
     TPrompt,
-    QuestionFn<TReq, QuestionReturns<TName, "checkbox", TReq, TChoices>>
+    TReq,
+    Shazam<TChoices>,
+    AsWhen<"checkbox", TReq, TChoices>
   >;
   /**
-   * as for a password or secret which will result in masked values when
+   * input for a password or secret which will result in masked values when
    * typed on the screen.
    */
   password: <
@@ -223,7 +228,9 @@ export interface AskApi<TReq extends Requirements> {
     TName,
     "password",
     TPrompt,
-    QuestionFn<TReq, QuestionReturns<TName, "password", TReq>>
+    TReq,
+    null,
+    AsWhen<"password", TReq>
   >;
 
   /**
@@ -242,7 +249,9 @@ export interface AskApi<TReq extends Requirements> {
     TName,
     "editor",
     TPrompt,
-    QuestionFn<TReq, QuestionReturns<TName, "editor", TReq>>
+    TReq,
+    null,
+    AsWhen<"editor", TReq>
   >;
 }
 
@@ -254,36 +263,7 @@ export type SurveyCallback = <
   answers: TAnswers,
 ) => Promise<ExpandDictionary<TAnswers & Record<TProp, unknown>>>;
 
-export type SurveyStep = Question<any, any, any, any> | SurveyCallback;
-
-// export type Survey = {
-//   kind: "Survey";
-//   /** the sequence of steps (aka, questions and callbacks) to run when executed */
-//   sequence: {
-//     [K in keyof T]: T[K]["prop"]
-//   },
-
-//   /**
-//    * the actual steps/functions needed to complete the survey
-//    */
-//   steps: readonly SurveyStep[];
-
-//   /**
-//    * The state of the "answers" dictionary on completion of the survey.
-//    */
-//   answers: RemoveIndexKeys<ExpandDictionary<Intersect<{
-//     [K in keyof T]: Awaited<ReturnType<T[K]>>
-//   }>>>
-
-//   start<A extends Dictionary>(answers?: A): Promise<
-
-//       ExpandDictionary<
-//         Intersect<{
-//           [K in keyof T]: Awaited<ReturnType<T[K]>>
-//         }> & Iff<A, EmptyObject>
-//       >
-//   >
-// }
+export type SurveyStep = Question | SurveyCallback;
 
 export type SurveyBuilder = <Q extends readonly Question<any, any, any, any>[]>(
   ...question: Q

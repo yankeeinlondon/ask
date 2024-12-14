@@ -1,14 +1,15 @@
 import type { AlphaNumericChar, SpecialChar } from "inferred-types";
+import type { Answers } from "inquirer";
 
 /**
  * A fully qualified definition of a choice
  */
-export interface Choice<T = unknown> {
+export interface Choice {
   type: "choice";
   /**
    * the actual _value_ which the question will be set to if this choice is selected
    */
-  value: T;
+  value: any;
   name: string;
   description?: string;
   /**
@@ -33,6 +34,23 @@ export interface Choice<T = unknown> {
   key?: `${AlphaNumericChar | SpecialChar}`;
 }
 
+/**
+ * An individual _choice_ can defer it's definition until the incoming
+ * answers array is made available.
+ */
+export type ChoiceCallback = (cb: Answers) => Exclude<ChoiceElement, ChoiceCallback>;
+
+/**
+ * All choices can be deferred until the `Answers` dictionary is
+ * provided for context. Note: this probably only makes sense for
+ * questions which have expressed a requirement/dependency.
+ */
+export type ChoicesCallback = (cb: Answers) => Choice[];
+
+/**
+ * Represents the possible values for a given "choice"
+ * in a question which has choices.
+ */
 export type ChoiceElement =
   | string
   | number
@@ -41,7 +59,8 @@ export type ChoiceElement =
   | undefined
   | ChoiceDictTuple
   | ChoiceDictProxy
-  | Choice<unknown>;
+  | ChoiceCallback
+  | Choice;
 
 /**
  * An array of Choices represented in either it's full `Choice` form
@@ -78,7 +97,10 @@ export type IsChoiceDictProxy<T> = T extends {
  * the keys are the "names" and the values are the actual values of the
  * the individual choices.
  */
-export type ChoiceDict = Record<string, ChoiceElement>;
+export type ChoiceDict<
+  K extends string = string,
+  E extends ChoiceElement = ChoiceElement,
+> = Record<K, E>;
 
 /**
  * When parsing a `ChoiceDict` key/value passed in, if the value looks
@@ -90,10 +112,9 @@ export type ChoiceDict = Record<string, ChoiceElement>;
 export type ChoiceDictProxy = Omit<Choice, "type" | "name">;
 
 /**
- * A set of choices defined by either a `ChoiceArr` or `ChoiceDict`
+ * All accepted values for a raw choices property
  */
-export type Choices = ChoiceArr | ChoiceDict;
-
-// N extends Narrowable,
-//   K extends PropertyKey,
-//   T extends readonly (Record<K, N> | Narrowable)[]
+export type Choices<
+  K extends string = string,
+  N extends ChoiceElement = ChoiceElement,
+> = ChoicesCallback | readonly N[] | ChoiceDict<K, N>;

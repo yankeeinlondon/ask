@@ -1,6 +1,7 @@
 import type { Equal, Expect } from "@type-challenges/utils";
+import { ToChoices } from "src/types";
+
 import type { QuestionOption } from "src/types/options";
-import type { ToChoices } from "src/types/utility";
 import { describe, it } from "vitest";
 
 describe("question Options", () => {

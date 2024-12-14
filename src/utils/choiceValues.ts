@@ -1,4 +1,4 @@
-import type { Choices, ToChoiceValues } from "src/types";
+import type { Choices } from "src/types";
 import { normalizeChoices } from "./normalizeChoices";
 
 /**

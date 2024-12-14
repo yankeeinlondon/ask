@@ -1,6 +1,6 @@
 import type { EmptyObject, SimpleToken } from "inferred-types";
+import type { AsyncCallback, Callback, FromRequirements } from "./ChoicesOutput";
 import type { Question } from "./Question";
-import type { AsyncCallback, Callback, FromRequirements } from "./utility";
 
 export interface Separator {
   type: "separator";

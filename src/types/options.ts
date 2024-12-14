@@ -1,5 +1,7 @@
 import type { DoesExtend, If } from "inferred-types";
 import type { Choice, Choices } from "./Choice";
+import type { ChoicesOutput } from "./ChoicesOutput";
+import type { FromRequirements } from "./FromRequirements";
 import type {
   Answers,
   DynamicQuestionProp,
@@ -8,18 +10,26 @@ import type {
   Separator,
 } from "./inquirer";
 import type { QuestionType } from "./QuestionType";
-import type { ChoicesOutput } from "./utility";
 
-export interface BaseOptions<TBaseType, TRequire extends Requirements> {
+/**
+ * The _options_ which every question type has
+ */
+export interface BaseOptions<
+  TBaseType,
+  TReq extends Requirements,
+> {
   /** the default value to start with */
   default?:
     | TBaseType
     | If<
-      DoesExtend<TRequire, RequirementDescriptor>, //
-      <T extends Answers<TRequire>>(answers: T) => TBaseType | undefined,
+      DoesExtend<TReq, RequirementDescriptor>, //
+      <T extends Answers<TReq>>(answers: T) => TBaseType | undefined,
       never
     >;
-  /** boolean flag indicating if a value is _required_ from this question */
+  /**
+   * boolean flag indicating if a non-empty value is _required_ from
+   * this question
+   */
   required?: boolean;
 
   /**
@@ -32,20 +42,21 @@ export interface BaseOptions<TBaseType, TRequire extends Requirements> {
   ) => boolean | TBaseType | Promise<TBaseType | boolean>;
 
   /**
-   * Post-processes the answer.
-   *
-   * @param input
-   * The answer provided by the user.
-   *
-   * @param answers
-   * The answers provided by the user.
+   * Allows the question to receive the answer provided by
+   * the user and then mutate where necessary (note: the _type_ of the
+   * value must not be changed)
    */
-  filter?: (input: TBaseType, answers: Answers<TRequire>) => TBaseType;
+  postProcess?: <
+    I extends TBaseType,
+    O extends TBaseType,
+  >(input: I,
+    answers: Answers<FromRequirements<TReq>>
+  ) => O;
 
   /**
    * A callback which determines if the question should be asked.
    */
-  when?: DynamicQuestionProp<boolean, Answers<TRequire>>;
+  when?: DynamicQuestionProp<boolean, Answers<FromRequirements<TReq>>>;
 }
 
 /** options for a text input question */
@@ -179,9 +190,9 @@ export type SearchOptions<TRequire extends Requirements> = BaseOptions<
 };
 
 export type SelectOptions<
-  TRequire extends Requirements,
-  TChoices extends readonly Choice[],
-> = BaseOptions<ChoicesOutput<TChoices, "select">, TRequire> & {
+  TReq extends Requirements,
+  _TChoices extends readonly Choice[] | null,
+> = BaseOptions<TReq, "select"> & {
   /**
    * By default, lists of choice longer than 7 will be paginated.
    * Use this option to control how many choices will appear on the
@@ -408,7 +419,7 @@ export type CheckboxOptions<
 export type QuestionOption<
   TKind extends QuestionType,
   TRequirements extends Requirements,
-  TChoices extends readonly Choice[] | [] = [],
+  TChoices extends readonly Choice[] | null = null,
 > = TKind extends "input"
   ? InputOptions<TRequirements>
   : TKind extends "number"

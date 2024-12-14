@@ -1,26 +1,23 @@
 import type { AsyncFunction } from "inferred-types";
-import type { Requirements } from "./inquirer";
+import type { Choice } from "./Choice";
+import type { FromRequirements } from "./FromRequirements";
+import type { DynamicQuestionProp, Requirements } from "./inquirer";
+import type { QuestionParams } from "./QuestionParams";
+import type { QuestionReturns } from "./QuestionReturns";
 import type { QuestionType } from "./QuestionType";
-import type { QuestionParams } from "./utility";
 
 /**
  * type utility which ensures a `Questions` function is correctly typed
  */
 export type QuestionFn<
-  TReq extends Requirements,
-  TRtn,
-> = AsyncFunction<QuestionParams<TReq>, TRtn>;
-
-export interface QuestionProps<
-  TName extends string,
+  TProp extends string,
   TType extends QuestionType,
-  TPrompt extends string,
-> {
-  kind: "question";
-  question: TName;
-  prompt: TPrompt;
-  type: TType;
-}
+  TReq extends Requirements,
+  TChoices extends readonly Choice[] | null,
+> = AsyncFunction<
+  QuestionParams<TReq>,
+  QuestionReturns<TProp, TType, TReq, TChoices>
+>;
 
 /**
  * **Question**
@@ -42,16 +39,41 @@ export type Question<
   TProp extends string = string,
   TType extends QuestionType = QuestionType,
   TPrompt extends string = string,
-  TWhen extends (answers: QuestionParams<any>) => boolean = (
-    answers: QuestionParams<any>,
-  ) => boolean,
-  TFn extends AsyncFunction<[Record<string, any>] | []> = AsyncFunction<
-    [Record<string, any>] | []
-  >,
+  TReq extends Requirements = Requirements,
+  TChoices extends readonly Choice[] | null = readonly Choice[] | null,
+  TWhen extends
+  | boolean
+  | DynamicQuestionProp<boolean, FromRequirements<TReq>> = | boolean
+  | DynamicQuestionProp<boolean, FromRequirements<TReq>>,
 > = {
   kind: "question";
   prop: TProp;
+  requirements: FromRequirements<TReq>;
   prompt: TPrompt;
   type: TType;
+  choices: TChoices;
   when: TWhen;
-} & TFn;
+} & AsyncFunction<
+  QuestionParams<TReq>,
+  QuestionReturns<TProp, TType, TReq, TChoices>
+>;
+
+export interface QuestionProps<
+  TProp extends string = string,
+  TType extends QuestionType = QuestionType,
+  TPrompt extends string = string,
+  TReq extends Requirements = Requirements,
+  TChoices extends readonly Choice[] | null = readonly Choice[] | null,
+  TWhen extends
+  | boolean
+  | DynamicQuestionProp<boolean, FromRequirements<TReq>> = | boolean
+  | DynamicQuestionProp<boolean, FromRequirements<TReq>>,
+> {
+  kind: "question";
+  prop: TProp;
+  requirements: FromRequirements<TReq>;
+  prompt: TPrompt;
+  type: TType;
+  choices: TChoices;
+  when: TWhen;
+}

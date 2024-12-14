@@ -1,6 +1,15 @@
-import type { Expect, ExpectTrue } from "@type-challenges/utils";
+import type { Equal, Expect, ExpectTrue } from "@type-challenges/utils";
 import type { HasSameValues } from "inferred-types";
-import type { ToChoices } from "src/types";
+import type { DoesExtend } from "inferred-types/types";
+import type {
+  Choice,
+  ChoiceArr,
+  ChoiceDict,
+  ChoiceElement,
+  Choices,
+  ChoicesCallback,
+  ToChoices,
+} from "src/types";
 import { describe, it } from "vitest";
 
 // Note: while type tests clearly fail visible inspection, they pass from Vitest
@@ -8,6 +17,35 @@ import { describe, it } from "vitest";
 // gain validation that no new type vulnerabilities have cropped up.
 
 describe("toChoices<T>", () => {
+  it("edge cases", () => {
+    type Opt1 = (readonly ChoiceElement[]) | ChoiceDict;
+
+    type All = ToChoices<Choices>;
+    type NotNull = ToChoices<ChoiceDict | ChoiceArr>;
+    type Callback = ToChoices<ChoicesCallback>;
+    type Wide = ToChoices<Opt1>;
+    type Null = ToChoices<null>;
+
+    type Narrow<
+      TChoices extends Choices<K, N>,
+      K extends string,
+      N extends ChoiceElement,
+    > = ToChoices<TChoices>;
+
+    type N1 = Narrow<[1, 2, 3], "1" | "2" | "3", 1 | 2 | 3>;
+
+    // @ts-ignore
+    type cases = [
+      Expect<Equal<All, Choice[]>>,
+      Expect<Equal<NotNull, Choice[]>>,
+      Expect<Equal<Callback, Choice[]>>,
+      Expect<Equal<Wide, Choice[]>>,
+      Expect<Equal<Null, null>>,
+
+      Expect<DoesExtend<N1, Choice[]>>,
+    ];
+  });
+
   it("array of scalars", () => {
     type FooBar = ToChoices<["foo", "bar"]>;
 
