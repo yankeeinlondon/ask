@@ -1,31 +1,26 @@
-import type { DoesExtend, If } from "inferred-types";
+import type {  AsyncFunction, SyncFunction } from "inferred-types";
 import type { Choice, Choices } from "./Choice";
 import type { ChoicesOutput } from "./ChoicesOutput";
-import type { FromRequirements } from "./FromRequirements";
 import type {
-  Answers,
-  DynamicQuestionProp,
-  RequirementDescriptor,
-  Requirements,
   Separator,
 } from "./inquirer";
 import type { QuestionType } from "./QuestionType";
+import { When } from "./when";
+import { RequirementDescriptor } from "./Requirements";
+
 
 /**
  * The _options_ which every question type has
  */
 export interface BaseOptions<
   TBaseType,
-  TReq extends Requirements,
+  TReq extends RequirementDescriptor,
 > {
   /** the default value to start with */
-  default?:
-    | TBaseType
-    | If<
-      DoesExtend<TReq, RequirementDescriptor>, //
-      <T extends Answers<TReq>>(answers: T) => TBaseType | undefined,
-      never
-    >;
+  default?: AsyncFunction<[TReq], TBaseType> |
+    SyncFunction<[TReq], TBaseType> |
+    TBaseType
+  ;
   /**
    * boolean flag indicating if a non-empty value is _required_ from
    * this question
@@ -50,17 +45,17 @@ export interface BaseOptions<
     I extends TBaseType,
     O extends TBaseType,
   >(input: I,
-    answers: Answers<FromRequirements<TReq>>
+    answers: TReq
   ) => O;
 
   /**
-   * A callback which determines if the question should be asked.
+   * A callback -- or boolean value -- which determines if the question should be asked.
    */
-  when?: DynamicQuestionProp<boolean, Answers<FromRequirements<TReq>>>;
+  when?: When<TReq>;
 }
 
 /** options for a text input question */
-export type InputOptions<TRequire extends Requirements> = BaseOptions<
+export type InputOptions<TRequire extends RequirementDescriptor> = BaseOptions<
   string,
   TRequire
 > & {
@@ -98,7 +93,7 @@ export type InputOptions<TRequire extends Requirements> = BaseOptions<
   };
 };
 
-export type NumberOptions<TRequire extends Requirements> = BaseOptions<
+export type NumberOptions<TRequire extends RequirementDescriptor> = BaseOptions<
   number,
   TRequire
 > & {
@@ -120,7 +115,7 @@ export type NumberOptions<TRequire extends Requirements> = BaseOptions<
   };
 };
 
-export type ConfirmOptions<TRequire extends Requirements> = BaseOptions<
+export type ConfirmOptions<TRequire extends RequirementDescriptor> = BaseOptions<
   boolean,
   TRequire
 > & {
@@ -144,7 +139,7 @@ export type ConfirmOptions<TRequire extends Requirements> = BaseOptions<
   };
 };
 
-export type SearchOptions<TRequire extends Requirements> = BaseOptions<
+export type SearchOptions<TRequire extends RequirementDescriptor> = BaseOptions<
   string,
   TRequire
 > & {
@@ -190,9 +185,10 @@ export type SearchOptions<TRequire extends Requirements> = BaseOptions<
 };
 
 export type SelectOptions<
-  TReq extends Requirements,
-  _TChoices extends readonly Choice[] | null,
-> = BaseOptions<TReq, "select"> & {
+  TReq extends RequirementDescriptor,
+  TChoices extends readonly Choice[] | null,
+> = TChoices extends Choice[]
+?  BaseOptions<ChoicesOutput<TChoices, "select">, TReq> & {
   /**
    * By default, lists of choice longer than 7 will be paginated.
    * Use this option to control how many choices will appear on the
@@ -233,9 +229,10 @@ export type SelectOptions<
      */
     helpMode?: "always" | "never" | "auto";
   };
-};
+}
+: never;
 
-export type PasswordOptions<TRequire extends Requirements> = BaseOptions<
+export type PasswordOptions<TRequire extends RequirementDescriptor> = BaseOptions<
   string,
   TRequire
 > & {
@@ -263,7 +260,7 @@ export type PasswordOptions<TRequire extends Requirements> = BaseOptions<
 };
 
 export type RawlistOptions<
-  TRequire extends Requirements,
+  TRequire extends RequirementDescriptor,
   TChoices extends readonly Choice[],
 > = BaseOptions<ChoicesOutput<TChoices, "rawlist">, TRequire> & {
   /**
@@ -284,7 +281,7 @@ export type RawlistOptions<
   };
 };
 
-export type EditorOptions<TReq extends Requirements> = BaseOptions<
+export type EditorOptions<TReq extends RequirementDescriptor> = BaseOptions<
   string,
   TReq
 > & {
@@ -324,7 +321,7 @@ export type EditorOptions<TReq extends Requirements> = BaseOptions<
 };
 
 export type ExpandOptions<
-  TReq extends Requirements,
+  TReq extends RequirementDescriptor,
   TChoices extends readonly Choice[],
 > = BaseOptions<ChoicesOutput<TChoices, "expand">, TReq> & {
   /** Expand the choices by default */
@@ -347,7 +344,7 @@ export type ExpandOptions<
 };
 
 export type CheckboxOptions<
-  TReq extends Requirements,
+  TReq extends RequirementDescriptor,
   TChoices extends readonly Choice[],
 > = BaseOptions<ChoicesOutput<TChoices, "checkbox">, TReq> & {
   /**
@@ -374,10 +371,10 @@ export type CheckboxOptions<
   validate?: (choices: Choice[]) => Promise<boolean | string>;
 
   theme?: {
-    prefix: string;
+    prefix?: string;
     spinner?: {
-      interval: number;
-      frames: string[];
+      interval?: number;
+      frames?: string[];
     };
     style?: {
       answer: (text: string) => string;
@@ -389,9 +386,9 @@ export type CheckboxOptions<
       key: (text: string) => string;
       disabledChoice: (text: string) => string;
       description: (text: string) => string;
-      renderSelectedChoices: <T>(
-        selectedChoices: ReadonlyArray<Choice<T>>,
-        allChoices: ReadonlyArray<Choice<T> | Separator>,
+      renderSelectedChoices: (
+        selectedChoices: Choice[],
+        allChoices: Choice | Separator,
       ) => string;
       icon?: {
         checked: string;
@@ -418,7 +415,7 @@ export type CheckboxOptions<
  */
 export type QuestionOption<
   TKind extends QuestionType,
-  TRequirements extends Requirements,
+  TRequirements extends RequirementDescriptor,
   TChoices extends readonly Choice[] | null = null,
 > = TKind extends "input"
   ? InputOptions<TRequirements>

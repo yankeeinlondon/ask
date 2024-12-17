@@ -15,5 +15,5 @@ export type ChoicesOutput<
   TChoices extends readonly Choice[],
   TType extends QuestionType,
 > = TType extends QuestionsWithMultiSelect
-  ? Array<UnionFromProp<TChoices, "value">>
+  ? UnionFromProp<TChoices, "value">[]
   : UnionFromProp<TChoices, "value">;

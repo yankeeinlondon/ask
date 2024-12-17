@@ -2,6 +2,7 @@ import type { Equal, Expect } from "@type-challenges/utils";
 import type { QuestionReturns, ToChoices } from "src/types";
 import { ask } from "src";
 import { describe, it } from "vitest";
+import { EmptyObject } from "inferred-types";
 
 // Note: while type tests clearly fail visible inspection, they pass from Vitest
 // standpoint so always be sure to run `tsc --noEmit` over your test files to
@@ -12,7 +13,7 @@ describe("questionReturns<Name,Type,Require,[Choices]>", () => {
     type Name = QuestionReturns<
       "name",
       "input",
-      "no-requirements",
+      EmptyObject,
       null
     >;
 
@@ -20,7 +21,7 @@ describe("questionReturns<Name,Type,Require,[Choices]>", () => {
       "name",
       "input",
       {
-        title: "string(Mr,Mrs,Ms)";
+        title: "Mr" | "Mrs" | "Ms";
       },
       null
     >;
@@ -39,13 +40,13 @@ describe("questionReturns<Name,Type,Require,[Choices]>", () => {
     type Color = QuestionReturns<
       "color",
       "select",
-      "no-requirements",
+      EmptyObject,
       ToChoices<["red", "blue", "green"]>
     >;
     type Color2 = QuestionReturns<
       "color",
       "select",
-      "no-requirements",
+      EmptyObject,
       ToChoices<{
         Red: "red";
         Green: "green";
@@ -112,11 +113,12 @@ describe("questionReturns<Name,Type,Require,[Choices]>", () => {
   });
 
   it("using checkbox question", () => {
+    type Choices =  ToChoices<["red", "blue", "green"]>;
     type Color = QuestionReturns<
       "color",
       "checkbox",
-      "no-requirements",
-      ToChoices<["red", "blue", "green"]>
+      EmptyObject,
+      Choices
     >;
 
     // @ts-ignore

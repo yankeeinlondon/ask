@@ -26,14 +26,14 @@
     "test": "vitest",
     "test:types": "typed test",
     "release": "bumpp",
-    "lint": "eslint --flag unstable_ts_config ",
+    "lint": "eslint --flag unstable_ts_config src tests",
     "example:age": "bun run examples/age.ts",
     "example:apparel": "bun run examples/apparel.ts",
     "example:color": "bun run examples/color.ts"
   },
   "dependencies": {
     "@inquirer/prompts": "^7.2.0",
-    "inferred-types": "^0.53.10",
+    "inferred-types": "^0.54.3",
     "inquirer": "^12.2.0"
   },
   "devDependencies": {

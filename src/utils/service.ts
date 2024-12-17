@@ -1,114 +1,77 @@
-import type { Dictionary } from "inferred-types";
 import type {
   Choice,
-  DynamicQuestionProp,
-  FromRequirements,
+  Question,
   QuestionFn,
   QuestionOption,
   QuestionParams,
   QuestionProps,
-  QuestionReturns,
   QuestionType,
-  Requirements,
+  RequirementDescriptor,
+  When,
 } from "src/types";
-import { createFnWithPropsExplicit, isFunction } from "inferred-types";
+import { createFnWithPropsExplicit, isFunction, isUndefined } from "inferred-types";
 import inquirer from "inquirer";
-import { fromRequirements } from "./fromRequirements";
 import { normalizeChoices } from "./normalizeChoices";
 
-/**
- * A higher order function which first takes:
- *
- * - requirements, question type, and choices
- *
- * The next call adds in:
- *
- * - the property name for the question
- * - the prompt
- * - options
- *
- * The output is a fully formed `Question`
- */
 export function service<
-  TReq extends Requirements,
+  TReq extends RequirementDescriptor,
   TType extends QuestionType,
   TChoices extends readonly Choice[] | null,
 >(requirements: TReq, type: TType, choices: TChoices) {
   return <
     TName extends string,
     TPrompt extends string,
-    TOpt extends QuestionOption<
-      TType,
-      TReq,
-      TChoices
-    >,
+    TOpt extends QuestionOption<TType, TReq, TChoices> | undefined, // Relaxed type
   >(
     name: TName,
     prompt: TPrompt,
     options?: TOpt,
   ) => {
     type Fn = QuestionFn<TName, TType, TReq, TChoices>;
+    // @ts-ignore
+    const opt: any = isUndefined(options) ? { opt: true } : options;
 
-    const fn: Fn = async <T extends QuestionParams<TReq>>(
-      ...params: T
-    ) => {
-      const answers = params[0]
-        ? params[0] as Dictionary
-        : {};
+    const fn = async <T extends QuestionParams<TReq>>(...params: T) => {
+      const answers = params[0] || {};
 
-      const message = (
-        isFunction(prompt) ? (prompt as any)(answers) : prompt
-      );
+      const message = isFunction(prompt) ? (prompt as any)(answers) : prompt;
 
-      const config = {
-        ...(options || {}),
+      let config = {
         type,
         name,
         message,
-        ...(choices
-          ? {
-              choices: normalizeChoices(
-                choices, //
-                type === "checkbox"
-                  ? (options?.default as unknown[])
-                  : undefined,
-              ),
-            }
-          : {}),
+        ...(choices ? { choices: normalizeChoices(choices) } : {}),
+        ...opt,
       };
-      // when clause checked at survey level
-      delete config.when;
+
+      if ("when" in config) delete config.when;
 
       const question = await inquirer.prompt(config as any);
+      return { ...answers, ...question };
+    };
 
-      return {
-        ...answers,
-        ...question,
-      } as unknown as QuestionReturns<TName, TType, TReq, TChoices>;
-    }; // end of fn
+    const when = (opt?.when ?? true) as When<TReq>; // Explicitly cast
 
-    const when: DynamicQuestionProp<boolean, FromRequirements<TReq>> | boolean = options?.when
-      ? options.when
-      : true;
-
-    type Props = QuestionProps<
-      TName,
-      TType,
-      TPrompt,
-      TReq,
-      TChoices
-    >;
+    type Props = QuestionProps<TName, TType, TPrompt, TReq, TChoices, When<TReq>>;
 
     const props: Props = {
       kind: "question",
       prop: name,
-      requirements: fromRequirements(requirements),
+      requirements,
       prompt,
       type,
       choices,
       when,
+      returns: null as unknown as Props["returns"]
     };
 
-    return createFnWithPropsExplicit<Fn, Props>(fn, props);
+    return createFnWithPropsExplicit<Fn, Props>(fn as Fn, props) as unknown as Question<
+      TName,
+      TType,
+      TPrompt,
+      TReq,
+      TChoices,
+      When<TReq>
+    >;
   };
 }

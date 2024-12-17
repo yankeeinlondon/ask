@@ -20,7 +20,7 @@ export type ChoiceReturns<
 > = TChoices extends readonly Choice[]
   ? TChoices extends readonly Record<string, unknown>[]
     ? TType extends QuestionsWithMultiSelect
-      ? (Record<TName, UnionFromProp<TChoices, "value">>)[]
+      ? (Record<TName, UnionFromProp<TChoices, "value">[]>)
       : Record<TName, UnionFromProp<TChoices, "value">>
     : never
   : Record<TName, QuestionTypeLookup<TType>>;

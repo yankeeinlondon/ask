@@ -1,8 +1,7 @@
 import type { ExpandDictionary } from "inferred-types";
 import type { Choice } from "./Choice";
 import type { ChoiceReturns } from "./ChoiceReturns";
-import type { FromRequirements } from "./FromRequirements";
-import type { Requirements } from "./inquirer";
+import type { RequirementDescriptor } from "./inquirer";
 import type { QuestionType } from "./QuestionType";
 
 /**
@@ -17,10 +16,10 @@ import type { QuestionType } from "./QuestionType";
 export type QuestionReturns<
   TName extends string,
   TType extends QuestionType,
-  TRequire extends Requirements,
+  TRequire extends RequirementDescriptor,
   TChoices extends (readonly Choice[]) | null,
 > = ExpandDictionary<
   Record<string, unknown> & // index allows other props to co-exist
-  FromRequirements<TRequire> & // all key/values which this question depends on
+  TRequire & // all key/values which this question depends on
   ChoiceReturns<TName, TType, TChoices> // the specific key/value this question provides
 >;

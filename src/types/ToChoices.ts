@@ -97,14 +97,16 @@ type FromChoicesArr<T extends Choices> = {
  * Converts all the possible representations of _choices_ into a tuple of
  * `Choice` objects
  */
-export type ToChoices<T extends Choices | null> = T extends null
+export type ToChoices<
+  T extends Choices | null,
+> = T extends null
   ? null
   : T extends ChoicesCallback
     ? ReturnType<T>
-    : IsWideContainer<T> extends true
-      ? Choice[]
-      : T extends readonly ChoiceElement[]
-        ? FromChoicesArr<T>
-        : T extends ChoiceDict<string, ChoiceElement>
-          ? FromDictToChoices<T, As<Keys<T>, readonly string[]> >
+    : T extends readonly ChoiceElement[]
+      ? FromChoicesArr<T>
+      : T extends ChoiceDict<string, ChoiceElement>
+        ? FromDictToChoices<T, As<Keys<T>, readonly string[]> >
+        : IsWideContainer<T> extends true
+          ? Choice[]
           : never;

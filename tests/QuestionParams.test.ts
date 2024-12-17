@@ -1,39 +1,41 @@
 import type { Equal, Expect, ExpectTrue } from "@type-challenges/utils";
-import type { HasRequiredReqs, QuestionParams } from "src/types";
+import { HasRequiredProps } from "inferred-types";
+import type { QuestionParams } from "src/types";
 import { describe, it } from "vitest";
 
 describe("questionParams<TReq>", () => {
   it("happy path", () => {
-    type NoReq = QuestionParams<"no-requirements">;
+    type NoReq = QuestionParams<{}>;
     type OptReq = QuestionParams<{
-      age?: "number";
+      age?: number;
     }>;
     type Req = QuestionParams<{
-      age: "number";
+      age: number;
     }>;
-    type Has = HasRequiredReqs<{
-      age: "number";
+    type Has = HasRequiredProps<{
+      age: number;
     }>;
 
     // @ts-ignore
     type cases = [
       Expect<
-        Equal<NoReq, [answers?: Record<string, unknown> | undefined] | []>
+        Equal<NoReq, [answers?: Record<string, unknown> | undefined] >
       >,
       Expect<
         Equal<
           OptReq,
           [
-            answers?:
-              | {
+            answers:
+              [
+                {
                 [x: string]: unknown;
                 age?: number | undefined;
-              }
-              | undefined,
+               } | undefined
+              ]
           ]
         >
       >,
-      ExpectTrue<HasRequiredReqs<Has>>,
+      ExpectTrue<Has>,
 
       Expect<
         Equal<
@@ -52,18 +54,18 @@ describe("questionParams<TReq>", () => {
 
 describe("asQuestion<TName,TType,TRequire,TPrompt,[TChoices]>", () => {
   it("input question", () => {
-    type NoReq = QuestionParams<"no-requirements">;
+    type NoReq = QuestionParams<{}>;
     type OptReq = QuestionParams<{
-      age?: "number";
+      age?: number;
     }>;
     type Req = QuestionParams<{
-      age: "number";
+      age: number;
     }>;
 
     // @ts-ignore
     type cases = [
       Expect<
-        Equal<NoReq, [answers?: Record<string, unknown> | undefined] | []>
+        Equal<NoReq, [answers?: Record<string, unknown> | undefined] >
       >,
       Expect<
         Equal<

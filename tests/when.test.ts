@@ -15,12 +15,15 @@ const remove = ask.select("remove", `What action would you like to take:`, [
   "remove selected",
 ]);
 
-const which = ask.checkbox(
+
+const which = ask
+  .withRequirements({ remove: "string(keep all,remove all,remove selected)" })
+  .checkbox(
   "which",
   "Choose which to delete",
   ["foo", "bar", "baz"],
   {
-    when: (v: any) => {
+    when: (v) => {
       return v.remove === "remove selected";
     },
   },

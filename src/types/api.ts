@@ -1,19 +1,17 @@
 import type {
+  DefineObject,
   Dictionary,
+  EmptyObject,
   ExpandDictionary,
+  FromDefineObject,
   Intersect,
 } from "inferred-types";
-import type { AsWhen } from "./AsWhen";
 import type { Choice, ChoiceElement, Choices } from "./Choice";
-import type { FromRequirements } from "./FromRequirements";
-import type { RequirementDescriptor, Requirements } from "./inquirer";
-import type {
-  ConfirmOptions,
-  ExpandOptions,
-  QuestionOption,
-} from "./options";
+import type { QuestionOption } from "./options";
+import type { RequirementDescriptor } from "./Requirements";
 import type { Question } from "./Question";
 import type { ToChoices } from "./ToChoices";
+import type {  When } from "./when";
 
 export type Shazam<T extends Choices> = ToChoices<T> extends readonly Choice[]
   ? ToChoices<T> : never;
@@ -21,13 +19,13 @@ export type Shazam<T extends Choices> = ToChoices<T> extends readonly Choice[]
 /**
  * **Ask**
  */
-export type Ask = <TReq extends Requirements>(req: TReq) => AskApi<TReq>;
+export type Ask = <TReq extends RequirementDescriptor>(req: TReq) => AskApi<TReq>;
 
 /**
  * API surface for starting to ask a question where first choice
  * is what _type_ of question you're asking.
  */
-export interface AskApi<TReq extends Requirements> {
+export interface AskApi<TReq extends RequirementDescriptor> {
   /**
    * **withRequirements**
    *
@@ -49,9 +47,15 @@ export interface AskApi<TReq extends Requirements> {
    * - both `needsProp` and `wouldBeNice` will be typed values when using a
    * callback for a prompt message or any other dynamic property.
    */
-  withRequirements: TReq extends RequirementDescriptor
-    ? Readonly<FromRequirements<TReq>>
-    : <T extends RequirementDescriptor>(req: T) => AskApi<T>;
+  withRequirements: TReq extends EmptyObject
+    ? <T extends DefineObject | Question>(req: T) => T extends DefineObject
+      ? AskApi<FromDefineObject<T>>
+      : T extends Question
+        ? T["requirements"] extends RequirementDescriptor
+          ? AskApi<T["requirements"]>
+          : never
+        : never
+    : Readonly<TReq>;
 
   /**
    * configure a question which receives a textual input from the user
@@ -70,7 +74,7 @@ export interface AskApi<TReq extends Requirements> {
     TPrompt,
     TReq,
     null,
-    AsWhen<"input", TReq>
+    When<TReq>
   >;
 
   /**
@@ -90,7 +94,28 @@ export interface AskApi<TReq extends Requirements> {
     TPrompt,
     TReq,
     null,
-    AsWhen<"number", TReq>
+    When<TReq>
+  >;
+
+  /**
+   * input for a password or secret which will result in masked values when
+   * typed on the screen.
+   */
+  password: <
+    TName extends string,
+    TPrompt extends string,
+    TOpt extends QuestionOption<"password", TReq> | undefined,
+  >(
+    name: TName,
+    prompt: TPrompt,
+    opt?: TOpt,
+  ) => Question<
+    TName,
+    "password",
+    TPrompt,
+    TReq,
+    null,
+    When<TReq>
   >;
 
   /**
@@ -105,7 +130,7 @@ export interface AskApi<TReq extends Requirements> {
   confirm: <
     TName extends string,
     TPrompt extends string,
-    TOpt extends ConfirmOptions<TReq> | undefined,
+    TOpt extends QuestionOption<"confirm", TReq> | undefined,
   >(
     name: TName,
     prompt: TPrompt,
@@ -116,7 +141,7 @@ export interface AskApi<TReq extends Requirements> {
     TPrompt,
     TReq,
     null,
-    AsWhen<"confirm", TReq>
+    When<TReq>
   >;
 
   /**
@@ -139,8 +164,10 @@ export interface AskApi<TReq extends Requirements> {
     "select",
     TPrompt,
     TReq,
-    Shazam<TChoices>,
-    AsWhen<"select", TReq, TChoices>
+    ToChoices<TChoices> extends readonly Choice[]
+      ? ToChoices<TChoices>
+      : never,
+    When<TReq>
   >;
   rawlist: <
     TName extends string,
@@ -160,7 +187,7 @@ export interface AskApi<TReq extends Requirements> {
     TPrompt,
     TReq,
     Shazam<TChoices>,
-    AsWhen<"rawlist", TReq, TChoices>
+    When<TReq>
   >;
 
   /**
@@ -172,10 +199,10 @@ export interface AskApi<TReq extends Requirements> {
     TChoices extends Choices<K, N>,
     K extends string,
     N extends ChoiceElement,
-    TOpt extends ExpandOptions<TReq, Shazam<TChoices>> | undefined,
+    TOpt extends QuestionOption<"expand", TReq, Shazam<TChoices>> | undefined,
   >(
     name: TName,
-    prompt: string,
+    prompt: TPrompt,
     choices: TChoices,
     opt?: TOpt,
   ) => Question<
@@ -184,7 +211,7 @@ export interface AskApi<TReq extends Requirements> {
     TPrompt,
     TReq,
     Shazam<TChoices>,
-    AsWhen<"expand", TReq, TChoices>
+    When<TReq>
   >;
 
   /**
@@ -210,27 +237,7 @@ export interface AskApi<TReq extends Requirements> {
     TPrompt,
     TReq,
     Shazam<TChoices>,
-    AsWhen<"checkbox", TReq, TChoices>
-  >;
-  /**
-   * input for a password or secret which will result in masked values when
-   * typed on the screen.
-   */
-  password: <
-    TName extends string,
-    TPrompt extends string,
-    TOpt extends QuestionOption<"password", TReq>,
-  >(
-    name: TName,
-    prompt: string,
-    opt?: TOpt,
-  ) => Question<
-    TName,
-    "password",
-    TPrompt,
-    TReq,
-    null,
-    AsWhen<"password", TReq>
+    When<TReq>
   >;
 
   /**
@@ -239,11 +246,11 @@ export interface AskApi<TReq extends Requirements> {
   editor: <
     TName extends string,
     TPrompt extends string,
-    TRequire extends Requirements,
-    TOpt extends QuestionOption<"editor", TRequire>,
+    TReq extends RequirementDescriptor,
+    TOpt extends QuestionOption<"editor", TReq> | undefined,
   >(
     name: TName,
-    prompt: string,
+    prompt: TPrompt,
     opt?: TOpt,
   ) => Question<
     TName,
@@ -251,7 +258,7 @@ export interface AskApi<TReq extends Requirements> {
     TPrompt,
     TReq,
     null,
-    AsWhen<"editor", TReq>
+    When<TReq>
   >;
 }
 

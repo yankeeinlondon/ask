@@ -1,85 +1,118 @@
 import type {
   Ask,
   AskApi,
-  FromRequirements,
-  RequirementDescriptor,
-  Requirements,
+  Question,
+  RequirementsDescriptor,
 } from "src/types";
-import { isRequirementDescriptor } from "src/type-guards";
+import { isQuestion } from "src/type-guards";
 import { normalizeChoices } from "src/utils";
 import { service } from "src/utils/service";
+import { 
+  type DefineObject, 
+  type FromDefineObject, 
+  fromDefineObject, 
+  isDefineObject
+} from "inferred-types";
 
+function input<TReq extends RequirementsDescriptor>(req: TReq): AskApi<TReq>["input"] {
+  return (
+    name,
+    prompt,
+    opt,
+  ) => service(req, "input", null)(name, prompt, opt);
+}
 
-const input = <TReq extends Requirements>(
-  req: TReq
-): AskApi<TReq>["input"] => (name, prompt, opt) => service(req, "input", null)(name,prompt,opt);
+function numeric<TReq extends RequirementsDescriptor>(req: TReq): AskApi<TReq>["number"] {
+  return (
+    name,
+    prompt,
+    opt,
+  ) => service(req, "number", null)(name, prompt, opt);
+}
 
-const numeric = <TReq extends Requirements>(
-  req: TReq
-): AskApi<TReq>["number"] => (name, prompt, opt) => service(req, "number", null)(name,prompt,opt);
+function password<TReq extends RequirementsDescriptor>(req: TReq): AskApi<TReq>["password"] {
+  return (
+    name,
+    prompt,
+    opt,
+  ) => service(req, "password", null)(name, prompt, opt);
+}
 
-const password = <TReq extends Requirements>(
-  req: TReq
-): AskApi<TReq>["password"] => (
-  name, prompt, opt
-) => service(req, "password", null)(name, prompt, opt);
+function confirm<TReq extends RequirementsDescriptor>(req: TReq): AskApi<TReq>["confirm"] {
+  return (
+    name,
+    prompt,
+    opt,
+  ) => service(req, "confirm", null)(name, prompt, opt);
+}
 
-const confirm = <TReq extends Requirements>(
-  req: TReq
-): AskApi<TReq>["confirm"] => (
-  name, prompt, opt
-) => service(req, "confirm", null)(name, prompt, opt);
+function select<TReq extends RequirementsDescriptor>(req: TReq): AskApi<TReq>["select"] {
+  return (
+    name,
+    prompt,
+    choices,
+    opt,
+  ) => service(req, "select", normalizeChoices(choices))(name, prompt, opt);
+}
 
-const select = <TReq extends Requirements>(
-  req: TReq
-): AskApi<TReq>["select"] => (
-  name, prompt, choices, opt
-) => service(req, "select", normalizeChoices(choices))(name, prompt, opt);
+function checkbox<TReq extends RequirementsDescriptor>(req: TReq): AskApi<TReq>["checkbox"] {
+  return (
+    name,
+    prompt,
+    choices,
+    opt,
+  ) => service(req, "checkbox", normalizeChoices(choices))(name, prompt, opt);
+}
 
-const checkbox = <TReq extends Requirements>(
-  req: TReq
-): AskApi<TReq>["checkbox"] => (
-  name, prompt, choices, opt
-) => service(req, "checkbox", normalizeChoices(choices))(name, prompt, opt);
+function rawlist<TReq extends RequirementsDescriptor>(req: TReq): AskApi<TReq>["rawlist"] {
+  return (
+    name,
+    prompt,
+    choices,
+    opt,
+  ) => service(req, "rawlist", normalizeChoices(choices))(name, prompt, opt);
+}
 
-const rawlist = <TReq extends Requirements>(
-  req: TReq
-): AskApi<TReq>["rawlist"] => (
-  name, prompt, choices, opt
-) => service(req, "rawlist", normalizeChoices(choices))(name, prompt, opt);
+function expand<TReq extends RequirementsDescriptor>(req: TReq): AskApi<TReq>["expand"] {
+  return (
+    name,
+    prompt,
+    choices,
+    opt,
+  ) => service(req, "expand", normalizeChoices(choices))(name, prompt, opt);
+}
 
-const expand = <TReq extends Requirements>(
-  req: TReq
-): AskApi<TReq>["expand"] => (
-  name, prompt, choices, opt
-) => service(req, "expand", normalizeChoices(choices))(name, prompt, opt);
+// function editor<TReq extends RequirementsDescriptor>(req: TReq): AskApi<TReq>["editor"] {
+//   return (
+//     name,
+//     prompt,
+//     opt,
+//   ) => service(req, "editor", null)(name, prompt, opt);
+// }
 
-const editor = <TReq extends Requirements>(
-  req: TReq
-): AskApi<TReq>["editor"] => (
-  name, prompt, opt
-) => service(req, "editor", null)(name, prompt, opt);
-
-const askApi: Ask = <TReq extends Requirements>(req: TReq) =>
+const askApi: Ask = <TReq extends RequirementsDescriptor>(req: TReq) =>
   ({
     input: input(req),
     number: numeric(req),
     password: password(req),
     confirm: confirm(req),
-    select: select(req),
-    checkbox: checkbox(req),
-    rawlist: rawlist(req),    
-    expand: expand(req),
-    editor: editor(req),
+    select: select(req) as unknown,
+    checkbox: checkbox(req) as unknown,
+    rawlist: rawlist(req) as unknown,
+    expand: expand(req) as unknown,
+    // editor: editor(req),
 
-
-    withRequirements: (isRequirementDescriptor(req)
-      ? (req as Readonly<FromRequirements<TReq>>)
-      : <T extends RequirementDescriptor>(req: T) =>
-          askApi(req)) as TReq extends RequirementDescriptor
-      ? Readonly<FromRequirements<TReq>>
-      : <T extends RequirementDescriptor>(req: T) => AskApi<T>,
-  });
+    withRequirements: <T extends DefineObject | Question>(req: T) => {
+      const defn = isDefineObject(req) 
+        ? fromDefineObject(req) 
+        : isQuestion(req) ? req.requirements : null as never;
+      return askApi(defn) as unknown as T extends DefineObject
+      ? AskApi<FromDefineObject<T>>
+      : T extends Question
+        ? AskApi<T["requirements"]>
+        : never
+    },
+  } as AskApi<TReq>);
 
 /**
  * **ask** API surface
@@ -98,4 +131,4 @@ const askApi: Ask = <TReq extends Requirements>(req: TReq) =>
  * - `confirm` - get a binary yes/no confirmation
  * - `search` - let user autocomplete from a set of terms
  */
-export const ask = askApi("no-requirements");
+export const ask = askApi({} );

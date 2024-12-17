@@ -31,7 +31,7 @@ describe("ask API", () => {
       Expect<Equal<(typeof name)["prompt"], "What is your name?">>,
 
       Expect<
-        Equal<Param, [] | [answers?: Record<string, unknown> | undefined]>
+        Equal<Param,  [answers?: Record<string, unknown> | undefined]>
       >,
       Expect<Equal<Return, { name: string; [key: string]: unknown }>>,
     ];
@@ -92,7 +92,7 @@ describe("ask API", () => {
       >,
 
       Expect<
-        Equal<Param, [] | [answers?: Record<string, unknown> | undefined]>
+        Equal<Param, [answers?: Record<string, unknown> | undefined]>
       >,
       Expect<
         Equal<
@@ -108,7 +108,7 @@ describe("ask API", () => {
       "color",
       "What is your favorite color?",
       ["red", "blue", "green"],
-      { default: ["red", "blue"] },
+      { default: ["blue", "red"] },
     );
 
     type Param = Parameters<typeof _question>;
@@ -126,7 +126,7 @@ describe("ask API", () => {
       >,
 
       Expect<
-        Equal<Param, [] | [answers?: Record<string, unknown> | undefined]>
+        Equal<Param,  [answers?: Record<string, unknown> | undefined]>
       >,
       Expect<
         Equal<

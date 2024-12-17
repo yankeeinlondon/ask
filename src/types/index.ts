@@ -1,10 +1,8 @@
 export * from "./api";
-export * from "./AsWhen";
 export * from "./callbacks";
 export * from "./Choice";
 export * from "./ChoiceReturns";
 export * from "./ChoicesOutput";
-export * from "./FromRequirements";
 export * from "./inquirer";
 export * from "./options";
 export * from "./Question";
@@ -12,3 +10,5 @@ export * from "./QuestionParams";
 export * from "./QuestionReturns";
 export * from "./QuestionType";
 export * from "./ToChoices";
+export * from "./when";
+export * from "./Requirements";

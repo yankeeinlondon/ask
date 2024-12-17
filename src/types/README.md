@@ -19,18 +19,44 @@ The library is so good i'm sure that a regular user would be happy to use "as is
   const age = ask.number("age", "How old are you?", { min: 1, max: 150 });
   ```
 
-- these questions can then be _asked_ by simply calling them:
+  **Note:** questions can be asked this way _only_ when they don't have any requirements; 
+  more on this later.
+
+- these questions can then be _asked_ by simply calling them asynchronously:
 
   ```ts
-  const answers = {
-    name: await name(),
-    age: await age(),
-  };
+  const name = await name();
   ```
+
+- these questions can also be _asked_ in a manner where they return a key/value dictionary:
+
+  ```ts
+  const name = await name.ask();
+  const age = await name.ask();
+  const answers = { name, age };
+  ```
+
+  in this mode, the answers are offset by the property name in the question, avoiding merge
+  conflicts when answer is put together.
+
+## Survey Builder
+
+The Survey builder is intended to _compose_ several questions together:
+
+```ts
+const nameAndAge = survey(ask, age);
+```
+
+Above we've configured a pipeline of questions to be asked. To ask them we call `.start()`:
+
+```ts
+// { name: string; age: number }
+const answers = await nameAndAge.start();
+```
 
 ### Advanced Features
 
-We support all the core question types that **inquirer** along with the options exposed by these various question types. In addition we've added a few advanced features that don't come "out of the box" with **inquirer**:
+We support all the core question types that **inquirer** does along with the options exposed by these various question types. In addition we've added a few advanced features that don't come "out of the box" with **inquirer**:
 
 #### `withRequirements`
 
@@ -53,35 +79,7 @@ This use of "requirements" becomes even more useful in the next section when we 
 
 #### `abortTimeout` and `acceptTimeout`
 
-## Survey Builder
-
-**NOTE:** THIS IS NOT IMPLEMENTED YET. COMING SOON.
-
-The `survey` builder is intended to aid in the composition of questions. In it's most straightforward example, it provides a way to chain questions together like we see here:
-
-```ts
-import { ask, survey } from "@yankeeinlondon/ask";
-
-const name = ask.input("name", "What is your name?");
-const age = ask.number("age", "How old are you?", { min: 1, max: 150 });
-const cont = ask
-  .withRequirements({ name: "string", age: "number" })
-  .confirm("continue", "Continue with installation?");
-
-const install = survey(
-  name,
-  age,
-  cont
-);
-
-const answers = await install.start();
-```
-
-A survey guarantees order, in this case ensuring that `name` is asked first, then `age`, and finally `cont` which we expressed has a requirement but assuming the two prior questions have been asked then it's requirement will be met.
-
-When, however, you place a question with requirements into a flow which does _not_ sufficiently meet the requirements of the questions contained you will find that you have a type error. Addressing this type error can be done by adding in questions prior to the dependant question such that requirements are met, or you can simply pass in the missing requirements to the `start()` function.
-
-> **Note:** the `when` option is available across all questions and if you are using this then any question added to a survey will only _optionally_ return that value.
+TODO
 
 ### Conditionals / Branching
 

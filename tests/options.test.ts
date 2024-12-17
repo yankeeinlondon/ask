@@ -1,5 +1,5 @@
 import type { Equal, Expect } from "@type-challenges/utils";
-import { ToChoices } from "src/types";
+import type { ToChoices } from "src/types";
 
 import type { QuestionOption } from "src/types/options";
 import { describe, it } from "vitest";
