@@ -9,6 +9,6 @@ export * from "./Question";
 export * from "./QuestionParams";
 export * from "./QuestionReturns";
 export * from "./QuestionType";
+export * from "./Requirements";
 export * from "./ToChoices";
 export * from "./when";
-export * from "./Requirements";

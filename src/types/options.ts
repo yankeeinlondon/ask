@@ -1,13 +1,12 @@
-import type {  AsyncFunction, SyncFunction } from "inferred-types";
+import type { AsyncFunction, SyncFunction } from "inferred-types";
 import type { Choice, Choices } from "./Choice";
 import type { ChoicesOutput } from "./ChoicesOutput";
 import type {
   Separator,
 } from "./inquirer";
 import type { QuestionType } from "./QuestionType";
-import { When } from "./when";
-import { RequirementDescriptor } from "./Requirements";
-
+import type { RequirementDescriptor } from "./Requirements";
+import type { When } from "./when";
 
 /**
  * The _options_ which every question type has
@@ -188,49 +187,49 @@ export type SelectOptions<
   TReq extends RequirementDescriptor,
   TChoices extends readonly Choice[] | null,
 > = TChoices extends Choice[]
-?  BaseOptions<ChoicesOutput<TChoices, "select">, TReq> & {
+  ? BaseOptions<ChoicesOutput<TChoices, "select">, TReq> & {
   /**
    * By default, lists of choice longer than 7 will be paginated.
    * Use this option to control how many choices will appear on the
    * screen at once.
    */
-  pageSize?: number;
-  /**
-   * Defaults to true. When set to false, the cursor will be constrained
-   * to the top and bottom of the choice list without looping.
-   */
-  loop?: boolean;
-  theme?: {
-    prefix: string;
-    spinner: {
-      interval: number;
-      frames: string[];
-    };
-    style?: {
-      answer: (text: string) => string;
-      message: (text: string) => string;
-      error: (text: string) => string;
-      help: (text: string) => string;
-      highlight: (text: string) => string;
-      description: (text: string) => string;
-      disabled: (text: string) => string;
-    };
-    icon?: {
-      cursor: string;
-    };
+    pageSize?: number;
     /**
-     * Modes:
-     *
-     * - `auto` (default): Hide the help tips after an interaction occurs. The
-     * scroll tip will hide after any interactions, the selection tip will hide
-     * as soon as a first selection is done.
-     * - `always`: The help tips will always show and never hide.
-     * - `never`: The help tips will never show.
+     * Defaults to true. When set to false, the cursor will be constrained
+     * to the top and bottom of the choice list without looping.
      */
-    helpMode?: "always" | "never" | "auto";
-  };
-}
-: never;
+    loop?: boolean;
+    theme?: {
+      prefix: string;
+      spinner: {
+        interval: number;
+        frames: string[];
+      };
+      style?: {
+        answer: (text: string) => string;
+        message: (text: string) => string;
+        error: (text: string) => string;
+        help: (text: string) => string;
+        highlight: (text: string) => string;
+        description: (text: string) => string;
+        disabled: (text: string) => string;
+      };
+      icon?: {
+        cursor: string;
+      };
+      /**
+       * Modes:
+       *
+       * - `auto` (default): Hide the help tips after an interaction occurs. The
+       * scroll tip will hide after any interactions, the selection tip will hide
+       * as soon as a first selection is done.
+       * - `always`: The help tips will always show and never hide.
+       * - `never`: The help tips will never show.
+       */
+      helpMode?: "always" | "never" | "auto";
+    };
+  }
+  : never;
 
 export type PasswordOptions<TRequire extends RequirementDescriptor> = BaseOptions<
   string,

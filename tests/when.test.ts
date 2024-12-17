@@ -15,19 +15,18 @@ const remove = ask.select("remove", `What action would you like to take:`, [
   "remove selected",
 ]);
 
-
 const which = ask
   .withRequirements({ remove: "string(keep all,remove all,remove selected)" })
   .checkbox(
-  "which",
-  "Choose which to delete",
-  ["foo", "bar", "baz"],
-  {
-    when: (v) => {
-      return v.remove === "remove selected";
+    "which",
+    "Choose which to delete",
+    ["foo", "bar", "baz"],
+    {
+      when: (v) => {
+        return v.remove === "remove selected";
+      },
     },
-  },
-);
+  );
 
 describe("when conditional", () => {
   it("should ask 'which' question when 'remove selected' is chosen", async () => {

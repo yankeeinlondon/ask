@@ -1,11 +1,11 @@
 import type { Equal, Expect, ExpectTrue } from "@type-challenges/utils";
-import { HasRequiredProps } from "inferred-types";
+import type { EmptyObject, HasRequiredProps } from "inferred-types";
 import type { QuestionParams } from "src/types";
 import { describe, it } from "vitest";
 
 describe("questionParams<TReq>", () => {
   it("happy path", () => {
-    type NoReq = QuestionParams<{}>;
+    type NoReq = QuestionParams<EmptyObject>;
     type OptReq = QuestionParams<{
       age?: number;
     }>;
@@ -25,13 +25,11 @@ describe("questionParams<TReq>", () => {
         Equal<
           OptReq,
           [
-            answers:
-              [
-                {
+            answers?:
+              {
                 [x: string]: unknown;
                 age?: number | undefined;
-               } | undefined
-              ]
+              } | undefined,
           ]
         >
       >,
@@ -54,7 +52,7 @@ describe("questionParams<TReq>", () => {
 
 describe("asQuestion<TName,TType,TRequire,TPrompt,[TChoices]>", () => {
   it("input question", () => {
-    type NoReq = QuestionParams<{}>;
+    type NoReq = QuestionParams<EmptyObject>;
     type OptReq = QuestionParams<{
       age?: number;
     }>;

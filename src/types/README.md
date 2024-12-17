@@ -19,7 +19,7 @@ The library is so good i'm sure that a regular user would be happy to use "as is
   const age = ask.number("age", "How old are you?", { min: 1, max: 150 });
   ```
 
-  **Note:** questions can be asked this way _only_ when they don't have any requirements; 
+  **Note:** questions can be asked this way _only_ when they don't have any requirements;
   more on this later.
 
 - these questions can then be _asked_ by simply calling them asynchronously:

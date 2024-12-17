@@ -36,7 +36,7 @@ export function service<
 
       const message = isFunction(prompt) ? (prompt as any)(answers) : prompt;
 
-      let config = {
+      const config = {
         type,
         name,
         message,
@@ -44,7 +44,8 @@ export function service<
         ...opt,
       };
 
-      if ("when" in config) delete config.when;
+      if ("when" in config)
+        delete config.when;
 
       const question = await inquirer.prompt(config as any);
       return { ...answers, ...question };
@@ -62,7 +63,7 @@ export function service<
       type,
       choices,
       when,
-      returns: null as unknown as Props["returns"]
+      returns: null as unknown as Props["returns"],
     };
 
     return createFnWithPropsExplicit<Fn, Props>(fn as Fn, props) as unknown as Question<

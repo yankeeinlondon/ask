@@ -8,10 +8,10 @@ import type {
 } from "inferred-types";
 import type { Choice, ChoiceElement, Choices } from "./Choice";
 import type { QuestionOption } from "./options";
-import type { RequirementDescriptor } from "./Requirements";
 import type { Question } from "./Question";
+import type { RequirementDescriptor } from "./Requirements";
 import type { ToChoices } from "./ToChoices";
-import type {  When } from "./when";
+import type { When } from "./when";
 
 export type Shazam<T extends Choices> = ToChoices<T> extends readonly Choice[]
   ? ToChoices<T> : never;
@@ -49,12 +49,12 @@ export interface AskApi<TReq extends RequirementDescriptor> {
    */
   withRequirements: TReq extends EmptyObject
     ? <T extends DefineObject | Question>(req: T) => T extends DefineObject
-      ? AskApi<FromDefineObject<T>>
-      : T extends Question
-        ? T["requirements"] extends RequirementDescriptor
-          ? AskApi<T["requirements"]>
+        ? AskApi<FromDefineObject<T>>
+        : T extends Question
+          ? T["requirements"] extends RequirementDescriptor
+            ? AskApi<T["requirements"]>
+            : never
           : never
-        : never
     : Readonly<TReq>;
 
   /**

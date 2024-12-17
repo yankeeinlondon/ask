@@ -50,7 +50,7 @@ export type Question<
   type: TType;
   choices: TChoices;
   when: TWhen;
-  returns: Awaited<QuestionReturns<TProp, TType, TReq, TChoices>>
+  returns: Awaited<QuestionReturns<TProp, TType, TReq, TChoices>>;
 } & AsyncFunction<
   QuestionParams<TReq>,
   QuestionReturns<TProp, TType, TReq, TChoices>
@@ -60,7 +60,7 @@ export interface QuestionProps<
   TProp extends string = string,
   TType extends QuestionType = QuestionType,
   TPrompt extends string = string,
-  TReq extends  RequirementDescriptor = RequirementDescriptor,
+  TReq extends RequirementDescriptor = RequirementDescriptor,
   TChoices extends readonly Choice[] | null = readonly Choice[] | null,
   TWhen extends When<TReq> = When<TReq>,
 > {
@@ -71,5 +71,5 @@ export interface QuestionProps<
   type: TType;
   choices: TChoices;
   when: TWhen;
-  returns: Awaited<QuestionReturns<TProp, TType, TReq, TChoices>>
+  returns: Awaited<QuestionReturns<TProp, TType, TReq, TChoices>>;
 }

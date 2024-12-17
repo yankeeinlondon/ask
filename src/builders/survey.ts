@@ -1,26 +1,21 @@
-import type {  InferAnswers, Survey } from "src/types/Survey";
-import { 
+import type { Question } from "src/types/Question";
+import type { InferAnswers, Survey } from "src/types/Survey";
+import {
   type AsyncFunction,
-  type EmptyObject, 
-  type ExpandDictionary, 
-  type SyncFunction,
-  isBoolean, 
-  isFunction, 
+  type EmptyObject,
+  type ExpandDictionary,
+  isFunction,
   isThenable,
+  type SyncFunction,
 } from "inferred-types";
-import { Question } from "src/types/Question";
 
-
-const resolve = async <
+async function resolve<
   T extends AsyncFunction<[A], boolean> | SyncFunction<[A], boolean>,
-  A extends Record<string, any>
->(
-  when: T,
-  answers: A
-): Promise<boolean> => {
+  A extends Record<string, any>,
+>(when: T, answers: A): Promise<boolean> {
   return isThenable(when)
     ? await when(answers)
-    : when(answers)
+    : when(answers);
 }
 
 export function survey<T extends readonly Question[]>(
@@ -41,9 +36,19 @@ export function survey<T extends readonly Question[]>(
 
       for (const step of steps) {
         const when = step?.when;
-        if (isBoolean(when) && (isFunction(when) && await resolve(when, answers) === true)) {
-          const stepAnswer = await step(answers);
-          answers = { ...answers, ...stepAnswer };
+
+        if (typeof when === "boolean") {
+          if (when === true) {
+            const stepAnswer = (await step(answers)) as object;
+            answers = { ...answers, ...stepAnswer };
+          }
+        }
+        else if (isFunction(when)) {
+          const shouldAsk = await resolve(when, answers);
+          if (shouldAsk) {
+            const stepAnswer = await step(answers);
+            answers = { ...answers, ...(stepAnswer as object) };
+          }
         }
       }
 

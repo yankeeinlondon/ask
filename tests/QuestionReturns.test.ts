@@ -1,8 +1,8 @@
 import type { Equal, Expect } from "@type-challenges/utils";
+import type { EmptyObject } from "inferred-types";
 import type { QuestionReturns, ToChoices } from "src/types";
 import { ask } from "src";
 import { describe, it } from "vitest";
-import { EmptyObject } from "inferred-types";
 
 // Note: while type tests clearly fail visible inspection, they pass from Vitest
 // standpoint so always be sure to run `tsc --noEmit` over your test files to
@@ -113,7 +113,7 @@ describe("questionReturns<Name,Type,Require,[Choices]>", () => {
   });
 
   it("using checkbox question", () => {
-    type Choices =  ToChoices<["red", "blue", "green"]>;
+    type Choices = ToChoices<["red", "blue", "green"]>;
     type Color = QuestionReturns<
       "color",
       "checkbox",
