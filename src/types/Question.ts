@@ -1,9 +1,9 @@
 import type { AsyncFunction } from "inferred-types";
 import type { Choice } from "./Choice";
-import type { RequirementDescriptor } from "./inquirer";
 import type { QuestionParams } from "./QuestionParams";
 import type { QuestionReturns } from "./QuestionReturns";
 import type { QuestionType } from "./QuestionType";
+import type { RequirementDescriptor } from "./Requirements";
 import type { When } from "./when";
 
 /**

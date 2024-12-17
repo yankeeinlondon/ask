@@ -1,8 +1,8 @@
 import type { ExpandDictionary } from "inferred-types";
 import type { Choice } from "./Choice";
 import type { ChoiceReturns } from "./ChoiceReturns";
-import type { RequirementDescriptor } from "./inquirer";
 import type { QuestionType } from "./QuestionType";
+import type { RequirementDescriptor } from "./Requirements";
 
 /**
  * Takes the existing answers hash and combines with a question's
