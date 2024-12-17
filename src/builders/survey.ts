@@ -33,14 +33,14 @@ export function survey<T extends readonly Question[]>(
 
       if (typeof when === "boolean") {
         if (when === true) {
-          const stepAnswer = (await step(answers)) as object;
+          const stepAnswer = (await step.ask(answers)) as object;
           answers = { ...answers, ...stepAnswer };
         }
       }
       else if (isFunction(when)) {
         const shouldAsk = await resolve(when, answers);
         if (shouldAsk) {
-          const stepAnswer = await step(answers);
+          const stepAnswer = await step.ask(answers);
           answers = { ...answers, ...(stepAnswer as object) };
         }
       }

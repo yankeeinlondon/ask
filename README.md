@@ -1,49 +1,61 @@
-# Ask
+# ask
 
-> two builders wrapped around the popular [`inquirer`](https://github.com/SBoudrias/Inquirer.js) package to make asking questions even easier.
+> strongly typed builder patterns wrapping the popular [inquirer](https://github.com/SBoudrias/Inquirer.js?tab=readme-ov-file) CLI utility
 
 ## Overview
 
-I use the **inquirer** package every few years but each time I go through a learning curve which I wish I didn't have to go through. This repo is an attempt to simplify the process by:
+I have turned to **inquirer** many times over the years when I need to build an interactive dialog with a user via the terminal. It's a great utility but because I'm not a regular user I keep on having to _reacquaint_ myself with it and it's types each time.
 
-- using builder patterns where possible
-- bring the documentation into the type system (and therefore closer to the user)
-- improve question composition so that interactive flows are easy to build
+The library is so good i'm sure that a regular user would be happy to use "as is" but I find the relearning curve a bit too steep. Admittedly I like my food to fed to me in a small spoon. Anyway, this library wraps the inquirer library and attempts to provide two builders: `ask` and `survey`.
 
-## Installation
+## Ask Builder
 
-```sh
-pnpm install @yankeeinlondon/ask
-```
+- allows the lazy creation of questions with a strongly typed builder pattern:
 
-## Usage
+  ```ts
+  import { ask } from "@yankeeinlondon/ask";
 
-There are two main builder patterns which will be used in **Ask**:
+  const name = ask.input("name", "What is your name?");
+  const age = ask.number("age", "How old are you?", { min: 1, max: 150 });
+  ```
 
-1. `ask` - for building questions
-2. `survey` - for composing questions into an interactive flow
+  **Note:** questions can be asked this way _only_ when they don't have any requirements;
+  more on this later.
 
-### Ask Builder
+- these questions can then be _asked_ directly by simply calling them like this:
 
-By importing `ask` from this repo, you'll get an API surface which provides a standardized way of composing any of the questions provided in the core `inquirer` package:
+  ```ts
+  const name = await name();
+  ```
+
+- these questions can also be _asked_ in a manner where they return a key/value dictionary:
+
+  ```ts
+  const name = await name.ask();
+  const age = await name.ask();
+  const answers = { name, age };
+  ```
+
+  in this mode, the answers are offset by the property name in the question, avoiding merge
+  conflicts when answer is put together.
+
+## Survey Builder
+
+The Survey builder is intended to _compose_ several questions together:
 
 ```ts
-import { ask } from "@yankeeinlondon/ask";
-
-const name = ask.input("name", "What is your name?");
-const age = ask.number("age", "How old are you?");
+const nameAndAge = survey(ask, age);
 ```
 
-These questions can be _asked_ simply by calling the result as an async function:
+Above we've configured a pipeline of questions to be asked. To ask them we call `.start()`:
 
 ```ts
-const answers = {
-  name: await name(),
-  age: await age()
-};
+// { name: string; age: number }
+const answers = await nameAndAge.start();
 ```
 
-#### Choices
+
+### Choices
 
 Many of the question types -- such as `select`, `checkbox`, `rawlist`, and `expand` -- ask that you provide a list of _choices_ for the user to choose from.
 
@@ -115,39 +127,79 @@ const color_proxy = ask.select(
 
 Any question type which _has_ **choices** provides the same call signature and variants for representing the choices.
 
-#### Options
+### Advanced Features
 
-Many questions, share some key _options_, but all options present only the options relevant to themselves as a question type.
+We support all the core question types that **inquirer** does along with the options exposed by these various question types. In addition we've added a few advanced features that don't come "out of the box" with **inquirer**:
 
-Where possible, we have attempted to _increase_ the commonality across question types. Examples include:
+#### `withRequirements`
 
-- `default` is found on some of the core **inquirer** commands but oddly missing in others -- like **checkbox** -- so we've extended it to work here too.
+Any question can express it's dependencies it expects to be fulfilled _prior_ to be being _asked_:
 
-## `survey` Builder
+```ts
+const cont = ask
+  .withRequirements({ name: "string", age: "number" })
+  .confirm("continue", "Continue with installation?");
+```
 
-- The survey builder's intent is to aid in the _composition_ of questions and interactive flows and to make the process as seamless as possible.
-- The API will look something like this:
+Unlike the previous questions, this one expects that _name_ (as a string) and _age_ (as a number) will be provided to the question. Attempts to call this question without these parameters (aka, "ask it") will be met with a type error (if you're using TS). However, asking this question is simple enough, even in an "atomic" use case like `ask`:
+
+```ts
+// user is prompted if they would like to continue
+const shallWeContinue = await cont({ name: "Bob Marley", age: 45 });
+```
+
+This use of "requirements" becomes even more useful in the next section when we look at the **survey** builder.
+
+#### `abortTimeout` and `acceptTimeout`
+
+TODO
+
+### Conditionals / Branching
+
+In addition to being able to compose questions in a simple chain (one which _does_ honor the `when` clause); there are two types of conditional clauses which can create branching behavior:
+
+- `branchIf()` - if a certain boolean condition is met then run another survey before returning to the complete the current one
+
+  Loosely building off our prior examples, let's look at this operator in action:
 
   ```ts
-  import { ask, survey } from "@yankeeinlondon/ask";
+  import { ask, branchIf, survey } from "@yankeeinlondon/ask";
 
-  const q1 = ask.input(...);
-  const q2 = ask.input(...);
-  const q3 = ask.input(...);
+  const why = survey(
+    ask.input("why", "Can you tell us why you don't want to install?")
+  );
 
-  const mySurvey = survey(q1,q2,q3);
+  const install = survey(
+    name,
+    age,
+    cont,
+    branchIf(a => isDefined(a.continue))
+  );
   ```
 
-- this API will accept any number of questions and ensure the following:
-  - each question at runtime will be run in the specified order
-  - at design time, if a question has "requirements" (aka, configured using the `withRequirements()` part of the `ask()` builder API -- a type error will be raised unless a question _prior_ to this dependant question _provides_ this information (aka, meets the requirement).
-- when a survey is configured (as is seen the above example) we are then exposed to a simple API surface which exposes a `start()` function:
+  In this example, if a user says they don't want to continue, we will ask them why.
 
-  ```ts
-  export type ConfiguredSurvey<...> = {
-    start<T extends Record<string, unknown> | undefined>(initialState?: T) => Answers
-  }
-  ```
+  > This example's simplicity is maybe a shortcoming as we could have easily just included another question at the end with the `when` option set but by having this conditional expression we're now able to branch out to a set of new questions based on any boolean logic we can express.
 
-- this `start()` call offers an optional way to start with a known state or leave it undefined for no initial state
-- the end result is a dictionary of key/values which is the aggregation of each question's response
+  **Note:** while in this example the condition was the last expression in the survey, this is not required, the `branchIf` expression can be placed anywhere in the survey and when it complete's this branch it will come back to the original survey and finish it.
+
+- `split()` - based on a boolean condition, move to one survey versus another
+
+#### `if(condition, survey)` branching
+
+#### `split(test, survey1, survey2)` branching
+
+## Question types Supported
+
+All _core_ questions from Inquirer:
+
+- `input` - text input
+- `select` - choose one item from a list
+- `checkbox` - choose multiple items from a list
+- `confirm` - get a binary yes/no response from the user
+- `search` -
+- `password` - _masked_ text input
+- `expand` - take actions with shortcut keys
+- `editor` -
+- `number` - numeric input
+- `rawlist` -

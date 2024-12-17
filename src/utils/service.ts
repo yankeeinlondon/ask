@@ -9,7 +9,7 @@ import type {
   RequirementDescriptor,
   When,
 } from "src/types";
-import { createFnWithPropsExplicit, isFunction, isUndefined } from "inferred-types";
+import { createFnWithPropsExplicit, isFunction, isUndefined, TypedFunction } from "inferred-types";
 import inquirer from "inquirer";
 import { normalizeChoices } from "./normalizeChoices";
 
@@ -64,9 +64,27 @@ export function service<
       choices,
       when,
       returns: null as unknown as Props["returns"],
+      ask: fn as Fn
     };
 
-    return createFnWithPropsExplicit<Fn, Props>(fn as Fn, props) as unknown as Question<
+    type Rtn = Question<
+      TName,
+      TType,
+      TPrompt,
+      TReq,
+      TChoices,
+      When<TReq>
+    >["returns"];
+
+    const directFn = async <T extends QuestionParams<TReq>>(...params: T) =>
+    {
+      const p: readonly unknown[] = params as unknown as readonly unknown[];
+      const answers = (await (fn as TypedFunction)(...p)) as unknown as Rtn;
+
+      return answers[name];
+    }
+
+    return createFnWithPropsExplicit<TypedFunction, Props>(directFn as TypedFunction, props) as unknown as Question<
       TName,
       TType,
       TPrompt,

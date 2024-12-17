@@ -18,8 +18,12 @@ export type QuestionReturns<
   TType extends QuestionType,
   TRequire extends RequirementDescriptor,
   TChoices extends (readonly Choice[]) | null,
-> = ExpandDictionary<
-  Record<string, unknown> & // index allows other props to co-exist
-  TRequire & // all key/values which this question depends on
-  ChoiceReturns<TName, TType, TChoices> // the specific key/value this question provides
->;
+  TDirect extends boolean = false
+> = TDirect extends true
+  ? ChoiceReturns<TName, TType, TChoices>[TName]
+
+  : ExpandDictionary<
+      Record<string, unknown> & // index allows other props to co-exist
+      TRequire & // all key/values which this question depends on
+      ChoiceReturns<TName, TType, TChoices> // the specific key/value this question provides
+    >;

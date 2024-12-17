@@ -7,5 +7,10 @@ const question = ask.select(
 );
 
 const answer = await question();
-
 console.log(answer);
+
+console.log (`Now we'll ask with .ask() variant`);
+const askAnswer = await question.ask();
+
+console.log(askAnswer);
+
