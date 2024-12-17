@@ -22,22 +22,24 @@ The library is so good i'm sure that a regular user would be happy to use "as is
   **Note:** questions can be asked this way _only_ when they don't have any requirements;
   more on this later.
 
-- these questions can then be _asked_ directly by simply calling them like this:
+- these questions can then be asked _directly_ by simply calling them like this:
 
   ```ts
+  // string
   const name = await name();
   ```
 
-- these questions can also be _asked_ in a manner where they return a key/value dictionary:
+- these questions can also be _asked_ in a manner where they return a key/value dictionary which allows for context to be built up:
 
   ```ts
+  // { name: string }
   const name = await name.ask();
-  const age = await name.ask();
-  const answers = { name, age };
+  // { name: string; age: number }
+  const age = await name.ask(name);
   ```
 
-  in this mode, the answers are offset by the property name in the question, avoiding merge
-  conflicts when answer is put together.
+  If you're using this format, it's likely you should probably just use a
+  `survey` (see next section).
 
 ## Survey Builder
 

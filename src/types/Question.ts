@@ -45,8 +45,8 @@ export type Question<
 > = {
   kind: "question";
   prop: TProp;
-  /** 
-   * the key/value pairs this question expects to already have in place 
+  /**
+   * the key/value pairs this question expects to already have in place
    * prior to the question being asked.
    */
   requirements: TReq;
@@ -58,28 +58,28 @@ export type Question<
    * The _choices_ which this question allows for
    */
   choices: TChoices;
-  /** 
+  /**
    * The conditional qualifiication this question operates on. Will be
    * a boolean value or a callback which returns one.
    */
   when: TWhen;
-  /** 
-   * the return value -- as key/value pairs -- this question returns once 
+  /**
+   * the return value -- as key/value pairs -- this question returns once
    * the promise is resolved.
    */
   returns: Awaited<QuestionReturns<TProp, TType, TReq, TChoices>>;
   /**
    * Ask the configured question and provides the answer as part
    * of the Answers key/value context.
-   * 
+   *
    * **Note:** this is in contrast to directly calling the function
-   * where the "answer" is just the answer to the individual 
+   * where the "answer" is just the answer to the individual
    * question.
    */
   ask: AsyncFunction<
     QuestionParams<TReq>,
     QuestionReturns<TProp, TType, TReq, TChoices>
-  >
+  >;
 } & AsyncFunction<
   QuestionParams<TReq>,
   QuestionReturns<TProp, TType, TReq, TChoices, true>
@@ -103,10 +103,10 @@ export interface QuestionProps<
   returns: Awaited<QuestionReturns<TProp, TType, TReq, TChoices>>;
   /**
    * Ask the configured question and provides the answer as part
-   * of the 
+   * of the
    */
   ask: AsyncFunction<
     QuestionParams<TReq>,
     QuestionReturns<TProp, TType, TReq, TChoices>
-  >
+  >;
 }
