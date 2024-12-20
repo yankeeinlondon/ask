@@ -1,6 +1,5 @@
 import type { AsyncFunction, SyncFunction } from "inferred-types";
 import type { Choice, Choices } from "./Choice";
-import type { ChoicesOutput } from "./ChoicesOutput";
 import type {
   Separator,
 } from "./inquirer";
@@ -185,9 +184,9 @@ export type SearchOptions<TRequire extends RequirementDescriptor> = BaseOptions<
 
 export type SelectOptions<
   TReq extends RequirementDescriptor,
-  TChoices extends readonly Choice[] | null,
+  TChoices extends readonly Choice[],
 > = TChoices extends Choice[]
-  ? BaseOptions<ChoicesOutput<TChoices, "select">, TReq> & {
+  ? BaseOptions<TChoices[number], TReq> & {
   /**
    * By default, lists of choice longer than 7 will be paginated.
    * Use this option to control how many choices will appear on the
@@ -261,7 +260,7 @@ export type PasswordOptions<TRequire extends RequirementDescriptor> = BaseOption
 export type RawlistOptions<
   TRequire extends RequirementDescriptor,
   TChoices extends readonly Choice[],
-> = BaseOptions<ChoicesOutput<TChoices, "rawlist">, TRequire> & {
+> = BaseOptions<TChoices[number], TRequire> & {
   /**
    * Customize look of the prompt:
    */
@@ -322,7 +321,7 @@ export type EditorOptions<TReq extends RequirementDescriptor> = BaseOptions<
 export type ExpandOptions<
   TReq extends RequirementDescriptor,
   TChoices extends readonly Choice[],
-> = BaseOptions<ChoicesOutput<TChoices, "expand">, TReq> & {
+> = BaseOptions<TChoices[number], TReq> & {
   /** Expand the choices by default */
   expanded?: boolean;
 
@@ -345,7 +344,7 @@ export type ExpandOptions<
 export type CheckboxOptions<
   TReq extends RequirementDescriptor,
   TChoices extends readonly Choice[],
-> = BaseOptions<ChoicesOutput<TChoices, "checkbox">, TReq> & {
+> = BaseOptions<TChoices[number][], TReq> & {
   /**
    * Defaults to `true`. When set to `false`, the cursor will be constrained
    * to the top and bottom of the choice list without looping.

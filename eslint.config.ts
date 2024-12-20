@@ -9,7 +9,7 @@ export default antfu(
       quotes: "double",
       semi: true,
       overrides: {
-        "style/indent-binary-ops": ["warn", 2],
+        "style/indent-binary-ops": ["off"],
         "array-callback-return": ["warn"],
         "valid-typeof": ["warn"],
         "unused-imports/no-unused-vars": ["error", {

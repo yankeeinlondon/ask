@@ -31,6 +31,7 @@
     "example:age": "bun run examples/age.ts",
     "example:apparel": "bun run examples/apparel.ts",
     "example:color": "bun run examples/color.ts",
+    "example:bigSelector": "bun run examples/bigSelector.ts",
     "prepare": "husky"
   },
   "dependencies": {
