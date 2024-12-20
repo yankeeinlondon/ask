@@ -12,14 +12,14 @@
   ],
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": "./dist/index.d.cts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     }
   },
   "main": "dist/index.cjs",
   "module": "dist/index.js",
-  "types": "dist/index.d.cts",
+  "typings": "dist/index.d.cts",
   "scripts": {
     "build": "tsup",
     "watch": "tsup --watch",
