@@ -57,7 +57,7 @@ export type ChoiceElement =
   | boolean
   | null
   | undefined
-  | ChoiceDictTuple
+  | ChoiceTuple
   | ChoiceDictProxy
   | ChoiceCallback
   | Choice;
@@ -75,13 +75,13 @@ export type ChoiceArr = readonly ChoiceElement[];
  * approach is to have the "key" be the `name` and the "value" be the
  * `value` property
  */
-export type ChoiceDictTuple = [value: unknown, desc: string];
+export type ChoiceTuple = [value: unknown, desc: string];
 
 /**
  * Type util which returns `true`/`false` indicating whether `T`
  * is a `ChoiceDictTuple`
  */
-export type IsChoiceDictTuple<T> = T extends [unknown, string] ? true : false;
+export type IsChoiceTuple<T> = T extends [unknown, string] ? true : false;
 
 export type IsChoiceDictProxy<T> = T extends {
   value: unknown;

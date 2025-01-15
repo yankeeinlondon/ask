@@ -13,10 +13,10 @@ import type {
   Choice,
   ChoiceDict,
   ChoiceDictProxy,
-  ChoiceDictTuple,
   ChoiceElement,
   Choices,
   ChoicesCallback,
+  ChoiceTuple,
   IsChoiceDictProxy,
 } from "./Choice";
 
@@ -32,7 +32,7 @@ type FromDictToChoices<
     [
       ...TChoices,
       First<TKeys> extends keyof TObj
-        ? TObj[First<TKeys>] extends ChoiceDictTuple
+        ? TObj[First<TKeys>] extends ChoiceTuple
           ? {
               type: "choice";
               name: First<TKeys>;
