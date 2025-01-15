@@ -1,7 +1,7 @@
 {
   "name": "@yankeeinlondon/ask",
   "type": "module",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "Provides two builder patterns to wrap around the popular inquirer package",
   "author": "Ken Snyder <ken@ken.net>",
   "license": "MIT",
